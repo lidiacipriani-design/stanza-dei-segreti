@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Torre della Visione</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold:   #F5C842;
+    --gold2:  #E8A020;
+    --purple: #3B1F6E;
+    --cream:  #FDF6E3;
+    --ink:    #1C1228;
+    --accent: #a78bfa;
+  }
+
+  html, body {
+    width: 100%; min-height: 100%;
+    font-family: 'Nunito', sans-serif;
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  #sky {
+    position: fixed; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse at 40% 20%, #2d1454 0%, #1C1228 55%, #0a0810 100%);
+    overflow: hidden;
+  }
+  .star {
+    position: absolute; background: #FFE680;
+    border-radius: 50%;
+    animation: twinkle var(--dur,3s) ease-in-out infinite var(--delay,0s);
+  }
+  @keyframes twinkle {
+    0%,100%{opacity:0.12;transform:scale(1)}
+    50%{opacity:.8;transform:scale(1.4)}
+  }
+
+  #app {
+    position: relative; z-index: 10;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .room-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: rgba(167,139,250,0.08);
+    border: 1.5px solid rgba(167,139,250,0.25);
+    border-radius: 16px;
+  }
+  .room-icon-big { font-size: 36px; }
+  .room-header-text { flex: 1; }
+  .room-eyebrow {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 2px;
+  }
+  .room-title {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(15px, 3vw, 20px);
+    color: var(--gold);
+  }
+  .team-pill {
+    padding: 6px 14px;
+    background: rgba(245,200,66,0.12);
+    border: 1.5px solid rgba(245,200,66,0.3);
+    border-radius: 20px;
+    font-size: 13px; font-weight: 800;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  /* ── PROGRESS STEP ── */
+  .steps-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid rgba(167,139,250,0.3);
+    background: rgba(167,139,250,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800;
+    color: rgba(253,246,227,0.3);
+    transition: all 0.4s ease;
+    position: relative;
+  }
+  .step-dot.active {
+    border-color: var(--accent);
+    background: rgba(167,139,250,0.2);
+    color: var(--accent);
+    box-shadow: 0 0 16px rgba(167,139,250,0.4);
+  }
+  .step-dot.done {
+    border-color: var(--gold2);
+    background: rgba(245,200,66,0.15);
+    color: var(--gold);
+  }
+  .step-line {
+    flex: 1; height: 2px;
+    background: rgba(167,139,250,0.15);
+    border-radius: 1px;
+    max-width: 60px;
+  }
+  .step-line.done { background: rgba(245,200,66,0.4); }
+
+  /* ── STORIA SELECTOR ── */
+  .story-selector {
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid rgba(167,139,250,0.2);
+    border-radius: 16px;
+    padding: 16px 18px;
+  }
+  .selector-label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 10px;
+  }
+  .story-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .story-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(167,139,250,0.25);
+    background: transparent;
+    color: rgba(253,246,227,0.5);
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .story-tab:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .story-tab.active {
+    background: rgba(167,139,250,0.2);
+    border-color: var(--accent);
+    color: var(--cream);
+  }
+
+  /* ── PANNELLO PRINCIPALE ── */
+  .panel {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeUp 0.4s ease;
+  }
+  .panel.visible { display: flex; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── PANNELLO 1: ASCOLTO ── */
+  .listen-card {
+    background: linear-gradient(145deg, #2a1550 0%, #1e1040 100%);
+    border: 1.5px solid rgba(167,139,250,0.3);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+  }
+  .listen-icon {
+    font-size: 56px; margin-bottom: 16px;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(167,139,250,0.4)); }
+    50%      { transform: scale(1.06); filter: drop-shadow(0 0 20px rgba(167,139,250,0.7)); }
+  }
+  .listen-title {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 18px; color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .listen-instruction {
+    font-size: 14px; color: rgba(253,246,227,0.7);
+    line-height: 1.6; margin-bottom: 20px;
+  }
+  .eyes-closed-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 18px;
+    background: rgba(167,139,250,0.15);
+    border: 1.5px solid rgba(167,139,250,0.4);
+    border-radius: 30px;
+    font-size: 13px; font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+
+  /* testo storia */
+  .story-text-box {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(167,139,250,0.2);
+    border-radius: 14px;
+    padding: 20px 22px;
+    text-align: left;
+    margin-bottom: 8px;
+  }
+  .story-text-box p {
+    font-size: 16px;
+    line-height: 1.85;
+    color: var(--cream);
+    font-weight: 600;
+  }
+  .story-title-small {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 10px;
+  }
+
+  /* ── PANNELLO 2: CONFRONTO ── */
+  .discuss-card {
+    background: linear-gradient(145deg, #2a1550 0%, #1e1040 100%);
+    border: 1.5px solid rgba(167,139,250,0.3);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+  }
+  .discuss-icon { font-size: 52px; margin-bottom: 14px; }
+  .discuss-title {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 18px; color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .discuss-text {
+    font-size: 14px; color: rgba(253,246,227,0.7);
+    line-height: 1.6; margin-bottom: 24px;
+  }
+
+  /* timer */
+  .timer-ring {
+    position: relative;
+    width: 100px; height: 100px;
+    margin: 0 auto 20px;
+  }
+  .timer-ring svg { transform: rotate(-90deg); }
+  .timer-ring circle {
+    fill: none; stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear;
+  }
+  .timer-bg   { stroke: rgba(167,139,250,0.15); }
+  .timer-fill { stroke: var(--accent); stroke-dasharray: 283; stroke-dashoffset: 0; }
+  .timer-number {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 26px; color: var(--gold);
+  }
+
+  .notes-hint {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    background: rgba(245,200,66,0.08);
+    border: 1px solid rgba(245,200,66,0.2);
+    border-radius: 10px;
+    font-size: 12px; font-weight: 700;
+    color: rgba(245,200,66,0.7);
+  }
+
+  /* ── PANNELLO 3: VERIFICA ── */
+  .verify-intro {
+    text-align: center;
+    padding: 16px;
+  }
+  .verify-intro-title {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 18px; color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .verify-intro-text {
+    font-size: 13px; color: rgba(253,246,227,0.6);
+    font-weight: 600;
+  }
+
+  .elements-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .element-btn {
+    padding: 14px 16px;
+    background: rgba(167,139,250,0.07);
+    border: 2px solid rgba(167,139,250,0.2);
+    border-radius: 14px;
+    color: var(--cream);
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: left;
+    display: flex; align-items: center; gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .element-btn .el-icon { font-size: 20px; flex-shrink: 0; }
+  .element-btn:hover:not(.correct):not(.wrong) {
+    border-color: var(--accent);
+    background: rgba(167,139,250,0.15);
+    transform: scale(1.02);
+  }
+  .element-btn.correct {
+    background: rgba(26,140,122,0.2);
+    border-color: rgba(26,140,122,0.7);
+    color: #7de8d8;
+    cursor: default;
+  }
+  .element-btn.correct::after {
+    content: '+1';
+    position: absolute; right: 12px;
+    font-size: 13px; font-weight: 800;
+    color: #7de8d8;
+  }
+  .element-btn.wrong {
+    background: rgba(217,79,61,0.1);
+    border-color: rgba(217,79,61,0.3);
+    color: rgba(253,246,227,0.3);
+    cursor: default;
+    text-decoration: line-through;
+  }
+
+  /* score live */
+  .score-live {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px;
+    padding: 14px;
+    background: rgba(245,200,66,0.06);
+    border: 1px solid rgba(245,200,66,0.15);
+    border-radius: 14px;
+    text-align: center;
+  }
+  .score-live-number {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 36px; color: var(--gold);
+    line-height: 1;
+  }
+  .score-live-label {
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold2);
+  }
+  .score-live-name {
+    font-size: 14px; font-weight: 800; color: var(--cream);
+  }
+
+  /* ── BOTTONI ── */
+  .btn-primary {
+    padding: 14px 36px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+    color: var(--ink);
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 14px; font-weight: 700;
+    border: none; border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(245,200,66,0.35);
+    width: 100%;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(245,200,66,0.5);
+  }
+  .btn-secondary {
+    padding: 12px 24px;
+    background: transparent;
+    color: rgba(253,246,227,0.5);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 700;
+    border: 1.5px solid rgba(253,246,227,0.15);
+    border-radius: 50px; cursor: pointer;
+    transition: all 0.2s; width: 100%;
+  }
+  .btn-secondary:hover {
+    border-color: rgba(253,246,227,0.4);
+    color: var(--cream);
+  }
+
+  /* ── FINALE STANZA ── */
+  .clue-reveal {
+    background: linear-gradient(145deg, #1a0e3a, #2a1550);
+    border: 2px solid var(--gold);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(245,200,66,0.2);
+    animation: fadeUp 0.6s ease;
+  }
+  .clue-reveal-eyebrow {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold2); margin-bottom: 10px;
+  }
+  .clue-reveal-icon {
+    font-size: 64px; margin-bottom: 12px;
+    animation: bounceIn 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes bounceIn {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .clue-reveal-title {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 20px; color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .clue-reveal-text {
+    font-size: 14px; color: rgba(253,246,227,0.7);
+    line-height: 1.6; margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+<div id="sky"></div>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="room-header">
+    <div class="room-icon-big">🔮</div>
+    <div class="room-header-text">
+      <div class="room-eyebrow">Stanza 1 · Visualizzazione</div>
+      <div class="room-title">Torre della Visione</div>
+    </div>
+    <div class="team-pill" id="team-pill">—</div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="steps-bar">
+    <div class="step-dot active" id="step-0">1</div>
+    <div class="step-line"      id="line-0"></div>
+    <div class="step-dot"       id="step-1">2</div>
+    <div class="step-line"      id="line-1"></div>
+    <div class="step-dot"       id="step-2">3</div>
+  </div>
+
+  <!-- SELETTORE STORIA -->
+  <div class="story-selector" id="story-selector">
+    <div class="selector-label">📖 Scegli la storia</div>
+    <div class="story-tabs" id="story-tabs"></div>
+  </div>
+
+  <!-- ══ STEP 1: ASCOLTO ══ -->
+  <div class="panel visible" id="panel-0">
+    <div class="listen-card">
+      <div class="listen-icon">👂</div>
+      <div class="listen-title">Momento 1 — Ascolto</div>
+      <div class="listen-instruction">
+        Leggi la storia ad alta voce, lentamente.<br>
+        I bambini ascoltano con gli occhi chiusi.
+      </div>
+      <div class="eyes-closed-badge">😌 Occhi chiusi — niente matite</div>
+    </div>
+    <div class="story-text-box">
+      <div class="story-title-small">📖 Testo da leggere</div>
+      <p id="story-text">Seleziona una storia qui sopra per cominciare.</p>
+    </div>
+    <button class="btn-primary" onclick="goStep(1)" id="btn-step1" disabled>
+      Ho finito di leggere → Momento 2
+    </button>
+  </div>
+
+  <!-- ══ STEP 2: CONFRONTO ══ -->
+  <div class="panel" id="panel-1">
+    <div class="discuss-card">
+      <div class="discuss-icon">🗣️</div>
+      <div class="discuss-title">Momento 2 — Confronto</div>
+      <div class="discuss-text">
+        La squadra si confronta: cosa ricordate?<br>
+        Potete segnare qualche parola su un foglio.
+      </div>
+      <div class="timer-ring">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle class="timer-bg"   cx="50" cy="50" r="45"/>
+          <circle class="timer-fill" id="timer-circle" cx="50" cy="50" r="45"/>
+        </svg>
+        <div class="timer-number" id="timer-display">90</div>
+      </div>
+      <div class="notes-hint">✏️ Potete segnare parole-chiave su un foglio</div>
+    </div>
+    <button class="btn-primary" onclick="goStep(2)">Pronti! → Momento 3</button>
+    <button class="btn-secondary" onclick="resetTimer()">↺ Riparti il timer</button>
+  </div>
+
+  <!-- ══ STEP 3: VERIFICA ══ -->
+  <div class="panel" id="panel-2">
+    <div class="verify-intro">
+      <div class="verify-intro-title">Momento 3 — Verifica</div>
+      <div class="verify-intro-text">
+        Clicca gli elementi che la squadra ricorda correttamente
+      </div>
+    </div>
+    <div class="score-live">
+      <div>
+        <div class="score-live-name" id="score-team-name">—</div>
+        <div class="score-live-label">punteggio questa stanza</div>
+      </div>
+      <div>
+        <div class="score-live-number" id="score-display">0</div>
+      </div>
+    </div>
+    <div class="elements-grid" id="elements-grid"></div>
+    <button class="btn-primary" id="btn-finish" onclick="finishRoom()" style="display:none">
+      ✦ Sblocca l'indizio ✦
+    </button>
+  </div>
+
+  <!-- ══ RIVELAZIONE INDIZIO ══ -->
+  <div class="panel" id="panel-clue">
+    <div class="clue-reveal">
+      <div class="clue-reveal-eyebrow">🧩 Indizio sbloccato</div>
+      <div class="clue-reveal-icon">🖼️</div>
+      <div class="clue-reveal-title">Un frammento della verità</div>
+      <div class="clue-reveal-text">
+        Questo indizio visivo servirà alla fine.<br>
+        <strong style="color:var(--gold)">Ricordatelo bene!</strong><br><br>
+        La squadra ha guadagnato <span id="final-score" style="color:var(--gold);font-size:18px">0</span> punti.
+      </div>
+    </div>
+    <button class="btn-primary" onclick="returnToMap()">
+      ← Torna alla mappa
+    </button>
+  </div>
+
+</div>
+
+<script>
+// ── STELLE ──
+const sky = document.getElementById('sky');
+for (let i = 0; i < 60; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 2 + 0.6;
+  s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:-${Math.random()*6}s;`;
+  sky.appendChild(s);
+}
+
+// ── DATI ──
+const teams      = JSON.parse(sessionStorage.getItem('teams') || '["Squadra 1"]');
+const currentTeam = parseInt(sessionStorage.getItem('currentTeam') || '0');
+document.getElementById('team-pill').textContent = '👥 ' + teams[currentTeam];
+document.getElementById('score-team-name').textContent = teams[currentTeam];
+
+// ── STORIE ──
+const stories = [
+  {
+    id: 0,
+    title: '⚔️ San Martino',
+    text: `Era un giorno freddo e piovoso d'autunno. La pioggia cadeva fitta e il vento faceva volare le foglie secche lungo la strada di terra. Il cavaliere Martino avanzava lentamente a cavallo, con il mantello rosso bagnato che pesava sulle spalle.
+
+A un tratto, sul bordo della strada, vide un uomo seduto per terra. Era vestito solo di stracci, tremava dal freddo e aveva le braccia strette intorno al petto. Martino si fermò. Scese da cavallo, tirò fuori la spada e tagliò il suo mantello in due metà. Poi allungò una parte all'uomo senza dire una parola.
+
+Subito dopo, il cielo si aprì. Le nuvole si divisero, il sole tornò a splendere e l'aria diventò tiepida come in primavera.`,
+    elements: [
+      { icon: '🌧️', text: 'Pioggia e vento' },
+      { icon: '🍂', text: 'Foglie secche che volano' },
+      { icon: '🧣', text: 'Mantello rosso bagnato' },
+      { icon: '🥶', text: 'Uomo che tremava' },
+      { icon: '⚔️', text: 'Spada per tagliare' },
+      { icon: '☀️', text: 'Cielo che si apre e sole' },
+    ]
+  },
+  {
+    id: 1,
+    title: '🍓 Il mercato',
+    text: `La mattina presto il mercato era già pieno di gente. I banchi erano carichi di frutta colorata: arance lucide, mele rosse e grappoli d'uva viola. Un signore anziano con il grembiule a righe verdi sistemava le pere una ad una.
+
+Nell'aria si mescolava il profumo dolce delle fragole con quello forte del formaggio. Da qualche parte qualcuno fischiettava una melodia allegra. Il sole appena sorto faceva brillare le gocce di rugiada sulle foglie di insalata.`,
+    elements: [
+      { icon: '🍇', text: 'Uva viola' },
+      { icon: '👴', text: 'Signore con grembiule verde' },
+      { icon: '🍓', text: 'Profumo di fragole' },
+      { icon: '🧀', text: 'Odore forte di formaggio' },
+      { icon: '🎵', text: 'Qualcuno fischiettava' },
+      { icon: '💧', text: 'Rugiada sull\'insalata' },
+    ]
+  },
+  {
+    id: 2,
+    title: '⛈️ Il temporale',
+    text: `Il cielo era diventato tutto grigio scuro, quasi viola, in pochi minuti. L'aria odorava di terra bagnata anche se non aveva ancora cominciato a piovere. Le foglie degli alberi si giravano mostrando il loro lato chiaro, come tante mani aperte.
+
+Poi arrivò il primo tuono, lontano e lungo. Le galline nel cortile cominciarono a correre in tutte le direzioni. Cadde la prima goccia, grande e fredda, sul naso di Marco.`,
+    elements: [
+      { icon: '🟣', text: 'Cielo grigio quasi viola' },
+      { icon: '🌱', text: 'Odore di terra bagnata' },
+      { icon: '🤲', text: 'Foglie girate come mani' },
+      { icon: '⛈️', text: 'Primo tuono lontano' },
+      { icon: '🐔', text: 'Galline che correvano' },
+      { icon: '💧', text: 'Goccia fredda sul naso' },
+    ]
+  },
+  {
+    id: 3,
+    title: '📚 La biblioteca',
+    text: `La biblioteca era silenziosa e calda. Sugli scaffali altissimi i libri erano allineati in ogni colore: rossi, blu, verdi, con i titoli scritti in oro. Dal soffitto pendeva un lampadario di vetro colorato che proiettava piccoli arcobaleni sul pavimento di legno.
+
+In un angolo, su una poltrona viola consumata, una bambina leggeva tenendo il libro con tutte e due le mani. Fuori dalla finestra nevicava piano, e i fiocchi cadevano silenziosi come piume.`,
+    elements: [
+      { icon: '✨', text: 'Titoli scritti in oro' },
+      { icon: '🌈', text: 'Arcobaleni sul pavimento' },
+      { icon: '💜', text: 'Poltrona viola consumata' },
+      { icon: '👐', text: 'Bambina con libro a due mani' },
+      { icon: '❄️', text: 'Neve fuori dalla finestra' },
+      { icon: '🪶', text: 'Fiocchi silenziosi come piume' },
+    ]
+  },
+  {
+    id: 4,
+    title: '⛵ Il porto',
+    text: `Al tramonto il porto diventava tutto arancione e rosa. Le barche dondolavano lentamente legate ai loro pali, e le corde scricchiolavano piano. Un gatto tigrato dormiva raggomitolato su una cassetta di legno blu.
+
+L'acqua rifletteva il cielo come uno specchio rotto in mille pezzi. I gabbiani volavano in cerchio gridando. Nell'aria si sentiva forte il profumo di salmastro e di alghe.`,
+    elements: [
+      { icon: '🌅', text: 'Cielo arancione e rosa' },
+      { icon: '⛵', text: 'Barche che dondolano' },
+      { icon: '🐱', text: 'Gatto tigrato su cassetta blu' },
+      { icon: '🪞', text: 'Acqua come specchio rotto' },
+      { icon: '🕊️', text: 'Gabbiani in cerchio' },
+      { icon: '🌊', text: 'Profumo di salmastro' },
+    ]
+  },
+  {
+    id: 5,
+    title: '🏚️ La soffitta',
+    text: `La soffitta di nonna era piena di cose dimenticate. La luce entrava solo da un finestrino piccolo piccolo, pieno di ragnatele agli angoli. C'era un vecchio baule di legno scuro con il coperchio bombato e una serratura dorata.
+
+Sopra il baule era appoggiato un cappello di paglia con un nastro rosso sbiadito. Nell'aria c'era odore di lavanda e di vecchia carta. Sul pavimento di assi di legno, ogni passo faceva cigolìo.`,
+    elements: [
+      { icon: '🕸️', text: 'Finestrino con ragnatele' },
+      { icon: '🔒', text: 'Baule con serratura dorata' },
+      { icon: '👒', text: 'Cappello con nastro rosso' },
+      { icon: '💜', text: 'Odore di lavanda' },
+      { icon: '📄', text: 'Odore di vecchia carta' },
+      { icon: '🪵', text: 'Pavimento che cigola' },
+    ]
+  }
+];
+
+// ── STATO ──
+let currentStory = null;
+let currentStep  = 0;
+let roomScore    = 0;
+let timerInterval = null;
+let timeLeft     = 90;
+
+// ── RENDER TABS ──
+function renderTabs() {
+  const container = document.getElementById('story-tabs');
+  stories.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'story-tab';
+    btn.textContent = s.title;
+    btn.onclick = () => selectStory(i);
+    container.appendChild(btn);
+  });
+}
+
+function selectStory(index) {
+  currentStory = stories[index];
+  document.getElementById('story-text').textContent = currentStory.text;
+  document.getElementById('btn-step1').disabled = false;
+
+  // aggiorna tabs
+  document.querySelectorAll('.story-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === index);
+  });
+}
+
+// ── NAVIGAZIONE STEP ──
+function goStep(n) {
+  // aggiorna step bar
+  for (let i = 0; i < 3; i++) {
+    const dot  = document.getElementById('step-' + i);
+    const line = document.getElementById('line-' + i);
+    if (i < n) { dot.classList.add('done'); dot.textContent = '✓'; }
+    else if (i === n) { dot.classList.add('active'); dot.classList.remove('done'); }
+    else { dot.classList.remove('active', 'done'); }
+    if (line && i < n) line.classList.add('done');
+  }
+
+  // mostra pannello
+  document.querySelectorAll('.panel').forEach((p, i) => {
+    p.classList.toggle('visible', i === n);
+  });
+
+  currentStep = n;
+
+  if (n === 1) startTimer();
+  if (n === 2) renderElements();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── TIMER ──
+function startTimer() {
+  timeLeft = 90;
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) clearInterval(timerInterval);
+  }, 1000);
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  startTimer();
+}
+
+function updateTimerDisplay() {
+  document.getElementById('timer-display').textContent = timeLeft;
+  const circle = document.getElementById('timer-circle');
+  const pct = timeLeft / 90;
+  circle.style.strokeDashoffset = 283 * (1 - pct);
+  circle.style.stroke = timeLeft > 30 ? 'var(--accent)' : timeLeft > 10 ? '#F5C842' : '#D94F3D';
+}
+
+// ── ELEMENTI VERIFICA ──
+function renderElements() {
+  if (!currentStory) return;
+  roomScore = 0;
+  document.getElementById('score-display').textContent = '0';
+
+  const grid = document.getElementById('elements-grid');
+  grid.innerHTML = '';
+
+  currentStory.elements.forEach((el, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'element-btn';
+    btn.innerHTML = `<span class="el-icon">${el.icon}</span><span>${el.text}</span>`;
+    btn.onclick = () => markElement(btn, i);
+    grid.appendChild(btn);
+  });
+}
+
+let markedCount = 0;
+function markElement(btn, index) {
+  if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+  btn.classList.add('correct');
+  roomScore++;
+  markedCount++;
+  document.getElementById('score-display').textContent = roomScore;
+
+  // mostra tasto finale dopo almeno 1 elemento
+  document.getElementById('btn-finish').style.display = 'block';
+}
+
+// ── FINE STANZA ──
+function finishRoom() {
+  clearInterval(timerInterval);
+  document.getElementById('final-score').textContent = roomScore;
+
+  // nascondi tutti i pannelli e mostra clue
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('visible'));
+  document.getElementById('panel-clue').classList.add('visible');
+  document.getElementById('story-selector').style.display = 'none';
+
+  // aggiorna step bar
+  ['step-0','step-1','step-2'].forEach(id => {
+    const d = document.getElementById(id);
+    d.classList.add('done'); d.textContent = '✓';
+  });
+  document.getElementById('line-0').classList.add('done');
+  document.getElementById('line-1').classList.add('done');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function returnToMap() {
+  sessionStorage.setItem('justCompleted', '0');
+  sessionStorage.setItem('pointsEarned', roomScore);
+  sessionStorage.setItem('clueEarned', '🖼️');
+  window.location.href = 'map.html';
+}
+
+// ── INIT ──
+renderTabs();
+</script>
+</body>
+</html>
