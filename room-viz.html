@@ -329,11 +329,17 @@
     color: #7de8d8;
   }
   .element-btn.wrong {
-    background: rgba(217,79,61,0.1);
-    border-color: rgba(217,79,61,0.3);
+    background: rgba(217,79,61,0.15);
+    border-color: rgba(217,79,61,0.5);
     color: rgba(253,246,227,0.3);
     cursor: default;
     text-decoration: line-through;
+  }
+  .element-btn.wrong::after {
+    content: '-1';
+    position: absolute; right: 12px;
+    font-size: 13px; font-weight: 800;
+    color: #ff8875;
   }
 
   /* score live */
@@ -568,12 +574,16 @@ A un tratto, sul bordo della strada, vide un uomo seduto per terra. Era vestito 
 
 Subito dopo, il cielo si aprì. Le nuvole si divisero, il sole tornò a splendere e l'aria diventò tiepida come in primavera.`,
     elements: [
-      { icon: '🌧️', text: 'Pioggia e vento' },
-      { icon: '🍂', text: 'Foglie secche che volano' },
-      { icon: '🧣', text: 'Mantello rosso bagnato' },
-      { icon: '🥶', text: 'Uomo che tremava' },
-      { icon: '⚔️', text: 'Spada per tagliare' },
-      { icon: '☀️', text: 'Cielo che si apre e sole' },
+      { icon: '🌧️', text: 'Pioggia e vento',           correct: true  },
+      { icon: '🍂', text: 'Foglie secche che volano',   correct: true  },
+      { icon: '🧣', text: 'Mantello rosso bagnato',     correct: true  },
+      { icon: '🥶', text: 'Uomo che tremava',           correct: true  },
+      { icon: '⚔️', text: 'Spada per tagliare',         correct: true  },
+      { icon: '☀️', text: 'Cielo che si apre e sole',   correct: true  },
+      { icon: '❄️', text: 'Neve sul sentiero',          correct: false },
+      { icon: '🐴', text: 'Cavallo bianco',             correct: false },
+      { icon: '🌙', text: 'Luna che appare',            correct: false },
+      { icon: '🛡️', text: 'Scudo sul braccio',         correct: false },
     ]
   },
   {
@@ -583,12 +593,16 @@ Subito dopo, il cielo si aprì. Le nuvole si divisero, il sole tornò a splender
 
 Nell'aria si mescolava il profumo dolce delle fragole con quello forte del formaggio. Da qualche parte qualcuno fischiettava una melodia allegra. Il sole appena sorto faceva brillare le gocce di rugiada sulle foglie di insalata.`,
     elements: [
-      { icon: '🍇', text: 'Uva viola' },
-      { icon: '👴', text: 'Signore con grembiule verde' },
-      { icon: '🍓', text: 'Profumo di fragole' },
-      { icon: '🧀', text: 'Odore forte di formaggio' },
-      { icon: '🎵', text: 'Qualcuno fischiettava' },
-      { icon: '💧', text: 'Rugiada sull\'insalata' },
+      { icon: '🍇', text: 'Uva viola',                  correct: true  },
+      { icon: '👴', text: 'Signore con grembiule verde', correct: true  },
+      { icon: '🍓', text: 'Profumo di fragole',          correct: true  },
+      { icon: '🧀', text: 'Odore forte di formaggio',    correct: true  },
+      { icon: '🎵', text: 'Qualcuno fischiettava',       correct: true  },
+      { icon: '💧', text: 'Rugiada sull\'insalata',      correct: true  },
+      { icon: '🍌', text: 'Banane gialle sul banco',     correct: false },
+      { icon: '👩', text: 'Signora con cappello',        correct: false },
+      { icon: '🌧️', text: 'Pioggia sul mercato',        correct: false },
+      { icon: '🐦', text: 'Uccello che cantava',         correct: false },
     ]
   },
   {
@@ -598,12 +612,16 @@ Nell'aria si mescolava il profumo dolce delle fragole con quello forte del forma
 
 Poi arrivò il primo tuono, lontano e lungo. Le galline nel cortile cominciarono a correre in tutte le direzioni. Cadde la prima goccia, grande e fredda, sul naso di Marco.`,
     elements: [
-      { icon: '🟣', text: 'Cielo grigio quasi viola' },
-      { icon: '🌱', text: 'Odore di terra bagnata' },
-      { icon: '🤲', text: 'Foglie girate come mani' },
-      { icon: '⛈️', text: 'Primo tuono lontano' },
-      { icon: '🐔', text: 'Galline che correvano' },
-      { icon: '💧', text: 'Goccia fredda sul naso' },
+      { icon: '🟣', text: 'Cielo grigio quasi viola',   correct: true  },
+      { icon: '🌱', text: 'Odore di terra bagnata',     correct: true  },
+      { icon: '🤲', text: 'Foglie girate come mani',    correct: true  },
+      { icon: '⛈️', text: 'Primo tuono lontano',        correct: true  },
+      { icon: '🐔', text: 'Galline che correvano',      correct: true  },
+      { icon: '💧', text: 'Goccia fredda sul naso',     correct: true  },
+      { icon: '🌬️', text: 'Vento fortissimo',           correct: false },
+      { icon: '🐕', text: 'Cane che abbaiava',          correct: false },
+      { icon: '⚡', text: 'Lampo nel cielo',            correct: false },
+      { icon: '🌂', text: 'Ombrello dimenticato',       correct: false },
     ]
   },
   {
@@ -613,12 +631,16 @@ Poi arrivò il primo tuono, lontano e lungo. Le galline nel cortile cominciarono
 
 In un angolo, su una poltrona viola consumata, una bambina leggeva tenendo il libro con tutte e due le mani. Fuori dalla finestra nevicava piano, e i fiocchi cadevano silenziosi come piume.`,
     elements: [
-      { icon: '✨', text: 'Titoli scritti in oro' },
-      { icon: '🌈', text: 'Arcobaleni sul pavimento' },
-      { icon: '💜', text: 'Poltrona viola consumata' },
-      { icon: '👐', text: 'Bambina con libro a due mani' },
-      { icon: '❄️', text: 'Neve fuori dalla finestra' },
-      { icon: '🪶', text: 'Fiocchi silenziosi come piume' },
+      { icon: '✨', text: 'Titoli scritti in oro',           correct: true  },
+      { icon: '🌈', text: 'Arcobaleni sul pavimento',        correct: true  },
+      { icon: '💜', text: 'Poltrona viola consumata',        correct: true  },
+      { icon: '👐', text: 'Bambina con libro a due mani',    correct: true  },
+      { icon: '❄️', text: 'Neve fuori dalla finestra',       correct: true  },
+      { icon: '🪶', text: 'Fiocchi silenziosi come piume',   correct: true  },
+      { icon: '🕯️', text: 'Candele sui tavoli',             correct: false },
+      { icon: '🐱', text: 'Gatto addormentato',             correct: false },
+      { icon: '🔴', text: 'Poltrona rossa nell\'angolo',    correct: false },
+      { icon: '🌧️', text: 'Pioggia fuori dalla finestra',   correct: false },
     ]
   },
   {
@@ -628,12 +650,16 @@ In un angolo, su una poltrona viola consumata, una bambina leggeva tenendo il li
 
 L'acqua rifletteva il cielo come uno specchio rotto in mille pezzi. I gabbiani volavano in cerchio gridando. Nell'aria si sentiva forte il profumo di salmastro e di alghe.`,
     elements: [
-      { icon: '🌅', text: 'Cielo arancione e rosa' },
-      { icon: '⛵', text: 'Barche che dondolano' },
-      { icon: '🐱', text: 'Gatto tigrato su cassetta blu' },
-      { icon: '🪞', text: 'Acqua come specchio rotto' },
-      { icon: '🕊️', text: 'Gabbiani in cerchio' },
-      { icon: '🌊', text: 'Profumo di salmastro' },
+      { icon: '🌅', text: 'Cielo arancione e rosa',      correct: true  },
+      { icon: '⛵', text: 'Barche che dondolano',        correct: true  },
+      { icon: '🐱', text: 'Gatto tigrato su cassetta blu', correct: true },
+      { icon: '🪞', text: 'Acqua come specchio rotto',   correct: true  },
+      { icon: '🕊️', text: 'Gabbiani in cerchio',         correct: true  },
+      { icon: '🌊', text: 'Profumo di salmastro',        correct: true  },
+      { icon: '⚓', text: 'Ancora arrugginita',          correct: false },
+      { icon: '👨‍✈️', text: 'Marinaio sul molo',          correct: false },
+      { icon: '🐟', text: 'Pesce che saltava',           correct: false },
+      { icon: '🌙', text: 'Luna sul mare',               correct: false },
     ]
   },
   {
@@ -643,12 +669,16 @@ L'acqua rifletteva il cielo come uno specchio rotto in mille pezzi. I gabbiani v
 
 Sopra il baule era appoggiato un cappello di paglia con un nastro rosso sbiadito. Nell'aria c'era odore di lavanda e di vecchia carta. Sul pavimento di assi di legno, ogni passo faceva cigolìo.`,
     elements: [
-      { icon: '🕸️', text: 'Finestrino con ragnatele' },
-      { icon: '🔒', text: 'Baule con serratura dorata' },
-      { icon: '👒', text: 'Cappello con nastro rosso' },
-      { icon: '💜', text: 'Odore di lavanda' },
-      { icon: '📄', text: 'Odore di vecchia carta' },
-      { icon: '🪵', text: 'Pavimento che cigola' },
+      { icon: '🕸️', text: 'Finestrino con ragnatele',   correct: true  },
+      { icon: '🔒', text: 'Baule con serratura dorata',  correct: true  },
+      { icon: '👒', text: 'Cappello con nastro rosso',   correct: true  },
+      { icon: '💜', text: 'Odore di lavanda',            correct: true  },
+      { icon: '📄', text: 'Odore di vecchia carta',      correct: true  },
+      { icon: '🪵', text: 'Pavimento che cigola',        correct: true  },
+      { icon: '🪞', text: 'Specchio appannato',          correct: false },
+      { icon: '🕯️', text: 'Candela sul baule',          correct: false },
+      { icon: '📦', text: 'Scatole di cartone',          correct: false },
+      { icon: '🔵', text: 'Nastro blu sul cappello',     correct: false },
     ]
   }
 ];
@@ -734,29 +764,53 @@ function updateTimerDisplay() {
 }
 
 // ── ELEMENTI VERIFICA ──
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function renderElements() {
   if (!currentStory) return;
   roomScore = 0;
   document.getElementById('score-display').textContent = '0';
+  document.getElementById('btn-finish').style.display = 'none';
 
   const grid = document.getElementById('elements-grid');
   grid.innerHTML = '';
 
-  currentStory.elements.forEach((el, i) => {
+  // hint per l'insegnante
+  const hint = document.createElement('div');
+  hint.style.cssText = 'grid-column:1/-1;font-size:11px;font-weight:700;color:rgba(253,246,227,0.4);text-align:center;padding:4px 0 8px;letter-spacing:0.5px;';
+  hint.textContent = '✅ clicca ciò che ricordano · ❌ non cliccare gli elementi falsi';
+  grid.appendChild(hint);
+
+  const mixed = shuffle(currentStory.elements);
+
+  mixed.forEach((el) => {
     const btn = document.createElement('button');
     btn.className = 'element-btn';
     btn.innerHTML = `<span class="el-icon">${el.icon}</span><span>${el.text}</span>`;
-    btn.onclick = () => markElement(btn, i);
+    btn.dataset.correct = el.correct;
+    btn.onclick = () => markElement(btn, el.correct);
     grid.appendChild(btn);
   });
 }
 
-let markedCount = 0;
-function markElement(btn, index) {
+function markElement(btn, isCorrect) {
   if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
-  btn.classList.add('correct');
-  roomScore++;
-  markedCount++;
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    roomScore++;
+  } else {
+    btn.classList.add('wrong');
+    roomScore = Math.max(0, roomScore - 1);
+  }
+
   document.getElementById('score-display').textContent = roomScore;
 
   // mostra tasto finale dopo almeno 1 elemento
