@@ -180,13 +180,13 @@ const sky = document.getElementById('sky');
 for (let i=0;i<80;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.2+.6;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:-${Math.random()*6}s;`;sky.appendChild(s);}
 
 // STATO
-const teams       = JSON.parse(sessionStorage.getItem('teams') || '["Squadra 1","Squadra 2"]');
-const scores      = JSON.parse(sessionStorage.getItem('scores') || JSON.stringify(new Array(teams.length).fill(0)));
+const teams       = JSON.parse(localStorage.getItem('teams') || '["Squadra 1","Squadra 2"]');
+const scores      = JSON.parse(localStorage.getItem('scores') || JSON.stringify(new Array(teams.length).fill(0)));
 // completedBy[roomIndex] = array di indici squadra che hanno completato
-const completedBy = JSON.parse(sessionStorage.getItem('completedBy') || '[[],[],[]]');
+const completedBy = JSON.parse(localStorage.getItem('completedBy') || '[[],[],[]]');
 // clues: array piatto di {icon, teamName, roomName}
-const clues       = JSON.parse(sessionStorage.getItem('clues') || '[]');
-let currentTeam   = parseInt(sessionStorage.getItem('currentTeam') || '0');
+const clues       = JSON.parse(localStorage.getItem('clues') || '[]');
+let currentTeam   = parseInt(localStorage.getItem('currentTeam') || '0');
 
 const numTeams = teams.length;
 
@@ -282,10 +282,10 @@ const personaggi = [
 ];
 
 // Estrai personaggio se non già estratto
-let personaggioIdx = parseInt(sessionStorage.getItem('personaggioIdx') ?? '-1');
+let personaggioIdx = parseInt(localStorage.getItem('personaggioIdx') ?? '-1');
 if (personaggioIdx === -1) {
   personaggioIdx = Math.floor(Math.random() * personaggi.length);
-  sessionStorage.setItem('personaggioIdx', personaggioIdx);
+  localStorage.setItem('personaggioIdx', personaggioIdx);
 }
 const personaggio = personaggi[personaggioIdx];
 
@@ -402,43 +402,43 @@ function closeModal() {
 }
 function enterRoom() {
   if (selectedRoom === null) return;
-  sessionStorage.setItem('currentRoom', selectedRoom);
-  sessionStorage.setItem('currentTeam', currentTeam);
+  localStorage.setItem('currentRoom', selectedRoom);
+  localStorage.setItem('currentTeam', currentTeam);
   window.location.href = rooms[selectedRoom].page;
 }
 
 // TORNA DALLA STANZA
 function checkReturn() {
-  const justCompleted = sessionStorage.getItem('justCompleted');
+  const justCompleted = localStorage.getItem('justCompleted');
   if (justCompleted === null) return;
 
   const roomIdx   = parseInt(justCompleted);
-  const teamIdx   = parseInt(sessionStorage.getItem('currentTeam') || '0');
-  const pts       = parseInt(sessionStorage.getItem('pointsEarned') || '0');
+  const teamIdx   = parseInt(localStorage.getItem('currentTeam') || '0');
+  const pts       = parseInt(localStorage.getItem('pointsEarned') || '0');
 
   // aggiorna completedBy
   if (!completedBy[roomIdx].includes(teamIdx)) {
     completedBy[roomIdx].push(teamIdx);
   }
-  sessionStorage.setItem('completedBy', JSON.stringify(completedBy));
+  localStorage.setItem('completedBy', JSON.stringify(completedBy));
 
   // aggiorna punteggio
   scores[teamIdx] += pts;
-  sessionStorage.setItem('scores', JSON.stringify(scores));
+  localStorage.setItem('scores', JSON.stringify(scores));
 
   // indizio basato sul personaggio estratto e sull'ordine di completamento
   const completionOrder = completedBy[roomIdx].length - 1;
   const indizio = getIndizioForRoom(roomIdx, completionOrder);
   clues.push({ icon: indizio.icon, testo: indizio.testo, teamName: teams[teamIdx], roomName: rooms[roomIdx].name });
-  sessionStorage.setItem('clues', JSON.stringify(clues));
+  localStorage.setItem('clues', JSON.stringify(clues));
 
   // prossima squadra (ruota)
   currentTeam = (teamIdx + 1) % numTeams;
-  sessionStorage.setItem('currentTeam', currentTeam);
+  localStorage.setItem('currentTeam', currentTeam);
 
   // pulisci
-  sessionStorage.removeItem('justCompleted');
-  sessionStorage.removeItem('pointsEarned');
+  localStorage.removeItem('justCompleted');
+  localStorage.removeItem('pointsEarned');
 
   // mostra toast
   showToast(clueIcon, teams[teamIdx], rooms[roomIdx].name);
