@@ -485,9 +485,9 @@ function startGame() {
   sub.textContent = names.join(' · ') + ' — siete pronti?';
   loadingScreen.classList.add('visible');
 
-  // Salva dati in sessionStorage per le prossime pagine
-  sessionStorage.setItem('teams', JSON.stringify(names));
-  sessionStorage.setItem('scores', JSON.stringify(new Array(names.length).fill(0)));
+  // Salva dati in localStorage per le prossime pagine
+  localStorage.setItem('teams', JSON.stringify(names));
+  localStorage.setItem('scores', JSON.stringify(new Array(names.length).fill(0)));
 
   // Simula caricamento, poi va alla mappa delle stanze
   setTimeout(() => {
