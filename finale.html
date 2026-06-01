@@ -173,10 +173,10 @@ const sky=document.getElementById('sky');
 for(let i=0;i<120;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+.8;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:-${Math.random()*6}s;`;sky.appendChild(s);}
 
 // STATO
-const teams  = JSON.parse(sessionStorage.getItem('teams')||'["Squadra 1","Squadra 2"]');
-const scores = JSON.parse(sessionStorage.getItem('scores')||'[0,0]');
-const clues  = JSON.parse(sessionStorage.getItem('clues')||'[]');
-const personaggioIdx = parseInt(sessionStorage.getItem('personaggioIdx')||'0');
+const teams  = JSON.parse(localStorage.getItem('teams')||'["Squadra 1","Squadra 2"]');
+const scores = JSON.parse(localStorage.getItem('scores')||'[0,0]');
+const clues  = JSON.parse(localStorage.getItem('clues')||'[]');
+const personaggioIdx = parseInt(localStorage.getItem('personaggioIdx')||'0');
 
 const personaggi = [
   {nome:'Cappuccetto Rosso',varianti:['cappuccetto rosso','cappuccettorosso','cappuccetto','rosso cappuccetto']},
@@ -351,11 +351,11 @@ function launchConfetti(){
 }
 
 function newGame(){
-  sessionStorage.setItem('scores',JSON.stringify(new Array(teams.length).fill(0)));
-  sessionStorage.setItem('completedBy','[[],[],[]]');
-  sessionStorage.setItem('clues','[]');
-  sessionStorage.setItem('currentTeam','0');
-  sessionStorage.removeItem('personaggioIdx');
+  localStorage.setItem('scores',JSON.stringify(new Array(teams.length).fill(0)));
+  localStorage.setItem('completedBy','[[],[],[]]');
+  localStorage.setItem('clues','[]');
+  localStorage.setItem('currentTeam','0');
+  localStorage.removeItem('personaggioIdx');
   window.location.href='map.html';
 }
 
