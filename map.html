@@ -7,533 +7,169 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --gold:    #F5C842;
-    --gold2:   #E8A020;
-    --purple:  #3B1F6E;
-    --purple2: #5A3490;
-    --teal:    #1A8C7A;
-    --coral:   #D94F3D;
-    --cream:   #FDF6E3;
-    --ink:     #1C1228;
+    --gold:#F5C842; --gold2:#E8A020; --cream:#FDF6E3; --ink:#1C1228;
+    --accent-viz:#a78bfa; --accent-inf:#1A8C7A; --accent-mem:#D94F3D;
   }
+  html,body { width:100%; min-height:100%; font-family:'Nunito',sans-serif; background:var(--ink); color:var(--cream); }
+  #sky { position:fixed; inset:0; z-index:0; background:radial-gradient(ellipse at 50% 20%,#2d1454 0%,#1C1228 55%,#0a0810 100%); overflow:hidden; }
+  .star { position:absolute; background:#FFE680; border-radius:50%; animation:twinkle var(--dur,3s) ease-in-out infinite var(--delay,0s); }
+  @keyframes twinkle { 0%,100%{opacity:.12;transform:scale(1)} 50%{opacity:.8;transform:scale(1.4)} }
 
-  html, body {
-    width: 100%; height: 100%;
-    font-family: 'Nunito', sans-serif;
-    background: var(--ink);
-    color: var(--cream);
-    overflow-x: hidden;
-  }
+  #app { position:relative; z-index:10; max-width:760px; margin:0 auto; padding:16px 16px 32px; display:flex; flex-direction:column; gap:14px; min-height:100vh; }
 
-  /* ── SFONDO ── */
-  #sky {
-    position: fixed; inset: 0; z-index: 0;
-    background: radial-gradient(ellipse at 50% 20%, #2d1454 0%, #1C1228 55%, #0a0810 100%);
-    overflow: hidden;
-  }
-  .star {
-    position: absolute; background: #FFE680;
-    border-radius: 50%;
-    animation: twinkle var(--dur,3s) ease-in-out infinite var(--delay,0s);
-  }
-  @keyframes twinkle {
-    0%,100%{opacity:0.15;transform:scale(1)}
-    50%{opacity:.9;transform:scale(1.4)}
-  }
+  /* HEADER */
+  .top-bar { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .logo { font-family:'Cinzel Decorative',cursive; font-size:clamp(13px,2.5vw,17px); color:var(--gold); }
+  .logo span { display:block; font-family:'Nunito',sans-serif; font-size:10px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:var(--gold2); margin-bottom:2px; }
 
-  /* ── LAYOUT ── */
-  #app {
-    position: relative; z-index: 10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding: 16px 20px 24px;
-    gap: 16px;
-  }
+  /* TURNO */
+  .turn-banner { text-align:center; padding:10px 16px; background:rgba(245,200,66,0.08); border:1px solid rgba(245,200,66,0.2); border-radius:30px; font-size:13px; font-weight:700; color:var(--gold); display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
+  .turn-banner em { font-style:normal; color:var(--cream); font-size:15px; }
 
-  /* ── HEADER ── */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .header-title {
-    font-family: 'Cinzel Decorative', cursive;
-    font-size: clamp(13px, 2.5vw, 18px);
-    color: var(--gold);
-    text-shadow: 0 0 20px rgba(245,200,66,0.4);
-    white-space: nowrap;
-  }
-  .header-title span {
-    font-size: 0.7em;
-    color: var(--gold2);
-    display: block;
-    font-family: 'Nunito', sans-serif;
-    font-weight: 800;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-  }
+  /* PUNTEGGI */
+  .scores-row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  .score-card { flex:1; min-width:100px; max-width:220px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:14px; padding:10px 12px; text-align:center; transition:border-color .3s,box-shadow .3s; }
+  .score-card.active { border-color:var(--gold); box-shadow:0 0 18px rgba(245,200,66,0.3); }
+  .score-name { font-size:13px; font-weight:800; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .score-pts { font-family:'Cinzel Decorative',cursive; font-size:22px; color:var(--gold); line-height:1; }
+  .score-lbl { font-size:9px; color:rgba(253,246,227,.4); font-weight:700; letter-spacing:1px; text-transform:uppercase; }
 
-  /* ── INDIZI RACCOLTI ── */
-  .clues-bar {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    background: rgba(245,200,66,0.06);
-    border: 1.5px solid rgba(245,200,66,0.2);
-    border-radius: 12px;
-    padding: 8px 16px;
-    flex-wrap: wrap;
-  }
-  .clues-label {
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--gold2);
-    white-space: nowrap;
-  }
-  .clue-slot {
-    width: 36px; height: 36px;
-    border-radius: 8px;
-    border: 2px dashed rgba(245,200,66,0.3);
-    background: rgba(245,200,66,0.04);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-    transition: all 0.4s ease;
-    position: relative;
-  }
-  .clue-slot.filled {
-    border-style: solid;
-    border-color: var(--gold2);
-    background: rgba(245,200,66,0.15);
-    animation: clueIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  @keyframes clueIn {
-    from { transform: scale(0) rotate(-20deg); opacity: 0; }
-    to   { transform: scale(1) rotate(0deg);   opacity: 1; }
-  }
-  .clue-slot .clue-label {
-    position: absolute;
-    bottom: -18px;
-    font-size: 9px;
-    color: var(--gold2);
-    font-weight: 700;
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .clue-slot.filled .clue-label { opacity: 1; }
+  /* INDIZI */
+  .clues-panel { background:rgba(245,200,66,0.05); border:1.5px solid rgba(245,200,66,0.15); border-radius:16px; padding:12px 16px; }
+  .clues-title { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--gold2); margin-bottom:10px; }
+  .clues-grid { display:flex; gap:6px; flex-wrap:wrap; }
+  .clue-chip { width:38px; height:38px; border-radius:10px; border:2px dashed rgba(245,200,66,0.25); background:rgba(245,200,66,0.04); display:flex; align-items:center; justify-content:center; font-size:18px; transition:all .4s ease; position:relative; }
+  .clue-chip.filled { border-style:solid; border-color:var(--gold2); background:rgba(245,200,66,0.15); animation:clueIn .5s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes clueIn { from{transform:scale(0) rotate(-20deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
+  .clue-chip-label { position:absolute; bottom:-16px; font-size:8px; color:var(--gold2); font-weight:700; white-space:nowrap; opacity:0; transition:opacity .3s; }
+  .clue-chip.filled .clue-chip-label { opacity:1; }
 
-  /* ── PUNTEGGI SQUADRE ── */
-  .scores-section {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .score-card {
-    flex: 1;
-    min-width: 120px;
-    max-width: 200px;
-    background: rgba(255,255,255,0.04);
-    border: 1.5px solid rgba(255,255,255,0.1);
-    border-radius: 14px;
-    padding: 10px 14px;
-    text-align: center;
-    transition: border-color 0.3s, box-shadow 0.3s;
-  }
-  .score-card.active-turn {
-    border-color: var(--gold);
-    box-shadow: 0 0 18px rgba(245,200,66,0.3);
-  }
-  .score-name {
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--cream);
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .score-points {
-    font-family: 'Cinzel Decorative', cursive;
-    font-size: 22px;
-    color: var(--gold);
-    line-height: 1;
-  }
-  .score-pts-label {
-    font-size: 10px;
-    color: rgba(253,246,227,0.4);
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
+  /* STANZE */
+  .castle-map { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto; gap:12px; }
+  .room-card { position:relative; border-radius:18px; padding:20px 16px 16px; cursor:pointer; transition:transform .25s,box-shadow .25s; overflow:hidden; display:flex; flex-direction:column; align-items:center; gap:8px; min-height:150px; text-align:center; border:2px solid; }
+  .room-card:hover:not(.all-done) { transform:translateY(-3px) scale(1.02); }
+  .room-viz { grid-column:1; grid-row:1/3; background:linear-gradient(145deg,#2a1550 0%,#1e1040 100%); border-color:rgba(167,139,250,.35); box-shadow:0 4px 24px rgba(90,52,144,.3); }
+  .room-viz:hover:not(.all-done) { box-shadow:0 8px 40px rgba(167,139,250,.4); border-color:rgba(167,139,250,.8); }
+  .room-inf { grid-column:2; grid-row:1; background:linear-gradient(145deg,#0d3d35 0%,#082820 100%); border-color:rgba(26,140,122,.35); box-shadow:0 4px 24px rgba(26,140,122,.25); }
+  .room-inf:hover:not(.all-done) { box-shadow:0 8px 40px rgba(26,140,122,.45); border-color:rgba(26,140,122,.85); }
+  .room-mem { grid-column:2; grid-row:2; background:linear-gradient(145deg,#3d1510 0%,#280d08 100%); border-color:rgba(217,79,61,.35); box-shadow:0 4px 24px rgba(217,79,61,.25); }
+  .room-mem:hover:not(.all-done) { box-shadow:0 8px 40px rgba(217,79,61,.45); border-color:rgba(217,79,61,.8); }
+  .room-card.all-done { opacity:.5; cursor:default; filter:grayscale(.4); }
+  .room-card.all-done::after { content:'✓ Completata'; position:absolute; top:8px; right:10px; font-size:9px; font-weight:800; color:var(--gold); letter-spacing:1px; text-transform:uppercase; }
 
-  /* ── TURNO CORRENTE ── */
-  .turn-banner {
-    text-align: center;
-    padding: 8px 16px;
-    background: rgba(245,200,66,0.08);
-    border: 1px solid rgba(245,200,66,0.2);
-    border-radius: 30px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--gold);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .turn-banner em {
-    font-style: normal;
-    color: var(--cream);
-    font-size: 15px;
-  }
+  .room-icon { font-size:clamp(32px,5vw,46px); filter:drop-shadow(0 0 10px currentColor); }
+  .room-name { font-family:'Cinzel Decorative',cursive; font-size:clamp(10px,1.8vw,14px); color:var(--cream); line-height:1.2; }
+  .room-desc { font-size:clamp(9px,1.3vw,11px); color:rgba(253,246,227,.5); font-weight:600; line-height:1.4; max-width:160px; }
 
-  /* ── MAPPA CASTELLO ── */
-  .castle-map {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 14px;
-    max-width: 800px;
-    margin: 0 auto;
-    width: 100%;
-  }
+  /* progress bar per stanza */
+  .room-progress { width:100%; margin-top:4px; }
+  .progress-bar { width:100%; height:6px; background:rgba(255,255,255,.1); border-radius:3px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:3px; transition:width .6s ease; }
+  .room-viz  .progress-fill { background:var(--accent-viz); }
+  .room-inf  .progress-fill { background:var(--accent-inf); }
+  .room-mem  .progress-fill { background:var(--accent-mem); }
+  .progress-label { font-size:9px; font-weight:800; color:rgba(253,246,227,.4); margin-top:3px; letter-spacing:.5px; }
 
-  /* stanza grande in alto a sinistra */
-  .room-card {
-    position: relative;
-    border-radius: 20px;
-    padding: 24px 20px 20px;
-    cursor: pointer;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 160px;
-    text-align: center;
-    border: 2px solid;
-  }
-  .room-card:hover:not(.completed) {
-    transform: translateY(-4px) scale(1.02);
-  }
-  .room-card:active:not(.completed) {
-    transform: scale(0.98);
-  }
+  /* BOTTONE ENIGMA */
+  #finale-btn { display:none; padding:14px 36px; background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%); color:var(--ink); font-family:'Cinzel Decorative',cursive; font-size:14px; font-weight:700; border:none; border-radius:50px; cursor:pointer; transition:all .25s; box-shadow:0 4px 24px rgba(245,200,66,.4); text-align:center; animation:pulseBtn 2s ease-in-out infinite; }
+  @keyframes pulseBtn { 0%,100%{box-shadow:0 4px 24px rgba(245,200,66,.4)} 50%{box-shadow:0 4px 40px rgba(245,200,66,.7)} }
+  #finale-btn:hover { transform:translateY(-2px) scale(1.02); }
 
-  /* stanza 1 — viola */
-  .room-viz {
-    grid-column: 1; grid-row: 1 / 3;
-    background: linear-gradient(145deg, #2a1550 0%, #1e1040 100%);
-    border-color: rgba(167,139,250,0.4);
-    box-shadow: 0 4px 24px rgba(90,52,144,0.3);
-  }
-  .room-viz:hover:not(.completed) {
-    box-shadow: 0 8px 40px rgba(167,139,250,0.4);
-    border-color: rgba(167,139,250,0.8);
-  }
+  /* MODALE */
+  #room-modal { display:none; position:fixed; inset:0; z-index:200; background:rgba(10,8,16,.85); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:20px; }
+  #room-modal.open { display:flex; }
+  .modal-box { background:linear-gradient(160deg,#2a1550 0%,#1a0e3a 100%); border:2px solid var(--gold2); border-radius:22px; padding:28px 24px; max-width:460px; width:100%; text-align:center; box-shadow:0 0 60px rgba(59,31,110,.7); animation:modalIn .35s cubic-bezier(.34,1.36,.64,1); }
+  @keyframes modalIn { from{transform:scale(.85) translateY(20px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+  .modal-icon { font-size:48px; margin-bottom:10px; }
+  .modal-title { font-family:'Cinzel Decorative',cursive; font-size:18px; color:var(--gold); margin-bottom:6px; }
+  .modal-team { font-size:14px; color:var(--gold2); font-weight:800; margin-bottom:6px; }
+  .modal-desc { font-size:13px; color:rgba(253,246,227,.7); line-height:1.6; margin-bottom:20px; }
+  .modal-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .btn-primary { padding:12px 28px; background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%); color:var(--ink); font-family:'Cinzel Decorative',cursive; font-size:13px; font-weight:700; border:none; border-radius:50px; cursor:pointer; transition:all .2s; box-shadow:0 4px 20px rgba(245,200,66,.35); }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 28px rgba(245,200,66,.5); }
+  .btn-secondary { padding:12px 20px; background:transparent; color:rgba(253,246,227,.6); font-family:'Nunito',sans-serif; font-size:13px; font-weight:700; border:1.5px solid rgba(253,246,227,.2); border-radius:50px; cursor:pointer; transition:all .2s; }
+  .btn-secondary:hover { border-color:rgba(253,246,227,.5); color:var(--cream); }
 
-  /* stanza 2 — teal */
-  .room-inf {
-    grid-column: 2; grid-row: 1;
-    background: linear-gradient(145deg, #0d3d35 0%, #082820 100%);
-    border-color: rgba(26,140,122,0.4);
-    box-shadow: 0 4px 24px rgba(26,140,122,0.25);
-  }
-  .room-inf:hover:not(.completed) {
-    box-shadow: 0 8px 40px rgba(26,140,122,0.45);
-    border-color: rgba(26,140,122,0.85);
-  }
-
-  /* stanza 3 — corallo */
-  .room-mem {
-    grid-column: 2; grid-row: 2;
-    background: linear-gradient(145deg, #3d1510 0%, #280d08 100%);
-    border-color: rgba(217,79,61,0.4);
-    box-shadow: 0 4px 24px rgba(217,79,61,0.25);
-  }
-  .room-mem:hover:not(.completed) {
-    box-shadow: 0 8px 40px rgba(217,79,61,0.45);
-    border-color: rgba(217,79,61,0.8);
-  }
-
-  /* completata */
-  .room-card.completed {
-    opacity: 0.5;
-    cursor: default;
-    filter: grayscale(0.4);
-  }
-  .room-card.completed::after {
-    content: '✓ Completata';
-    position: absolute;
-    top: 10px; right: 12px;
-    font-size: 10px;
-    font-weight: 800;
-    color: var(--gold);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .room-icon {
-    font-size: clamp(36px, 6vw, 52px);
-    line-height: 1;
-    filter: drop-shadow(0 0 12px currentColor);
-  }
-  .room-name {
-    font-family: 'Cinzel Decorative', cursive;
-    font-size: clamp(11px, 2vw, 16px);
-    color: var(--cream);
-    line-height: 1.2;
-  }
-  .room-desc {
-    font-size: clamp(10px, 1.5vw, 12px);
-    color: rgba(253,246,227,0.55);
-    font-weight: 600;
-    line-height: 1.4;
-    max-width: 180px;
-  }
-
-  /* badge sfide */
-  .room-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
-  .room-viz .room-badge  { background: rgba(167,139,250,0.2); color: #c9a8ff; }
-  .room-inf .room-badge  { background: rgba(26,140,122,0.2);  color: #7de8d8; }
-  .room-mem .room-badge  { background: rgba(217,79,61,0.2);   color: #ffaa9a; }
-
-  /* particelle decorative */
-  .room-card::before {
-    content: '';
-    position: absolute;
-    width: 120px; height: 120px;
-    border-radius: 50%;
-    opacity: 0.06;
-    top: -30px; right: -30px;
-  }
-  .room-viz::before  { background: #a78bfa; }
-  .room-inf::before  { background: #1A8C7A; }
-  .room-mem::before  { background: #D94F3D; }
-
-  /* ── OVERLAY MODALE STANZA ── */
-  #room-modal {
-    display: none;
-    position: fixed; inset: 0; z-index: 200;
-    background: rgba(10,8,16,0.85);
-    backdrop-filter: blur(6px);
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  #room-modal.open { display: flex; }
-
-  .modal-box {
-    background: linear-gradient(160deg, #2a1550 0%, #1a0e3a 100%);
-    border: 2px solid var(--gold2);
-    border-radius: 22px;
-    padding: 32px 28px 28px;
-    max-width: 480px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 0 60px rgba(59,31,110,0.7), 0 0 0 1px rgba(245,200,66,0.1);
-    animation: modalIn 0.35s cubic-bezier(0.34,1.36,0.64,1);
-  }
-  @keyframes modalIn {
-    from { transform: scale(0.85) translateY(20px); opacity: 0; }
-    to   { transform: scale(1) translateY(0);       opacity: 1; }
-  }
-
-  .modal-icon { font-size: 52px; margin-bottom: 12px; }
-  .modal-title {
-    font-family: 'Cinzel Decorative', cursive;
-    font-size: 20px;
-    color: var(--gold);
-    margin-bottom: 8px;
-  }
-  .modal-team {
-    font-size: 14px;
-    color: var(--gold2);
-    font-weight: 800;
-    margin-bottom: 6px;
-  }
-  .modal-desc {
-    font-size: 14px;
-    color: rgba(253,246,227,0.7);
-    line-height: 1.6;
-    margin-bottom: 24px;
-  }
-
-  .modal-btns {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .btn-primary {
-    padding: 12px 32px;
-    background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
-    color: var(--ink);
-    font-family: 'Cinzel Decorative', cursive;
-    font-size: 13px;
-    font-weight: 700;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 20px rgba(245,200,66,0.35);
-  }
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 28px rgba(245,200,66,0.5);
-  }
-  .btn-secondary {
-    padding: 12px 24px;
-    background: transparent;
-    color: rgba(253,246,227,0.6);
-    font-family: 'Nunito', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    border: 1.5px solid rgba(253,246,227,0.2);
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-secondary:hover {
-    border-color: rgba(253,246,227,0.5);
-    color: var(--cream);
-  }
-
-  /* ── TOAST INDIZIO ── */
-  #clue-toast {
-    display: none;
-    position: fixed;
-    bottom: 30px; left: 50%;
-    transform: translateX(-50%);
-    z-index: 300;
-    background: linear-gradient(135deg, #2a1550, #1a0e3a);
-    border: 2px solid var(--gold);
-    border-radius: 16px;
-    padding: 16px 24px;
-    text-align: center;
-    box-shadow: 0 0 40px rgba(245,200,66,0.4);
-    animation: toastIn 0.4s cubic-bezier(0.34,1.36,0.64,1);
-    max-width: 320px;
-    width: 90%;
-  }
-  @keyframes toastIn {
-    from { transform: translateX(-50%) translateY(40px); opacity: 0; }
-    to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
-  }
-  .toast-icon { font-size: 28px; margin-bottom: 6px; }
-  .toast-title {
-    font-family: 'Cinzel Decorative', cursive;
-    font-size: 14px;
-    color: var(--gold);
-    margin-bottom: 4px;
-  }
-  .toast-text {
-    font-size: 12px;
-    color: rgba(253,246,227,0.7);
-    font-weight: 600;
-  }
+  /* TOAST */
+  #clue-toast { display:none; position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:300; background:linear-gradient(135deg,#2a1550,#1a0e3a); border:2px solid var(--gold); border-radius:16px; padding:14px 22px; text-align:center; box-shadow:0 0 40px rgba(245,200,66,.4); max-width:300px; width:90%; animation:toastIn .4s cubic-bezier(.34,1.36,.64,1); }
+  @keyframes toastIn { from{transform:translateX(-50%) translateY(40px);opacity:0} to{transform:translateX(-50%) translateY(0);opacity:1} }
+  .toast-icon { font-size:26px; margin-bottom:4px; }
+  .toast-title { font-family:'Cinzel Decorative',cursive; font-size:13px; color:var(--gold); margin-bottom:3px; }
+  .toast-text { font-size:11px; color:rgba(253,246,227,.7); font-weight:600; }
 </style>
 </head>
 <body>
-
 <div id="sky"></div>
-
 <div id="app">
 
-  <!-- HEADER -->
-  <header>
-    <div class="header-title">
-      <span>Mappa</span>
-      La Stanza dei Segreti
-    </div>
-    <!-- Indizi raccolti -->
-    <div class="clues-bar">
-      <div class="clues-label">🧩 Indizi</div>
-      <div class="clue-slot" id="clue-0"><div class="clue-label">Visivo</div></div>
-      <div class="clue-slot" id="clue-1"><div class="clue-label">Parola</div></div>
-      <div class="clue-slot" id="clue-2"><div class="clue-label">Simbolo</div></div>
-    </div>
-  </header>
-
-  <!-- TURNO -->
-  <div class="turn-banner" id="turn-banner">
-    🎲 Turno di: <em id="current-team-name">—</em>
-    &nbsp;·&nbsp; Scegli una stanza da esplorare
+  <div class="top-bar">
+    <div class="logo"><span>Mappa</span>La Stanza dei Segreti</div>
   </div>
 
-  <!-- PUNTEGGI -->
-  <div class="scores-section" id="scores-section"></div>
+  <div class="turn-banner">
+    🎲 Turno di: <em id="current-team-name">—</em>
+    &nbsp;·&nbsp; <span id="turn-sub">Scegli una stanza</span>
+  </div>
+
+  <div class="scores-row" id="scores-row"></div>
+
+  <!-- INDIZI -->
+  <div class="clues-panel">
+    <div class="clues-title">🧩 Indizi raccolti</div>
+    <div class="clues-grid" id="clues-grid"></div>
+  </div>
 
   <!-- MAPPA -->
   <div class="castle-map">
-
-    <!-- STANZA 1 — VISUALIZZAZIONE -->
     <div class="room-card room-viz" id="room-0" onclick="openRoom(0)">
       <div class="room-icon">🔮</div>
       <div class="room-name">Torre della<br>Visione</div>
-      <div class="room-desc">Ascolta, immagina,<br>racconta quello che vedi</div>
-      <div class="room-badge">✦ Visualizzazione</div>
+      <div class="room-desc">Ascolta, immagina,<br>racconta</div>
+      <div class="room-progress">
+        <div class="progress-bar"><div class="progress-fill" id="prog-0" style="width:0%"></div></div>
+        <div class="progress-label" id="prog-lbl-0">0 / ? squadre</div>
+      </div>
     </div>
-
-    <!-- STANZA 2 — INFERENZE -->
     <div class="room-card room-inf" id="room-1" onclick="openRoom(1)">
       <div class="room-icon">🔍</div>
       <div class="room-name">Sala degli<br>Indizi</div>
       <div class="room-desc">Trova le prove,<br>scopri il segreto</div>
-      <div class="room-badge">✦ Inferenze</div>
+      <div class="room-progress">
+        <div class="progress-bar"><div class="progress-fill" id="prog-1" style="width:0%"></div></div>
+        <div class="progress-label" id="prog-lbl-1">0 / ? squadre</div>
+      </div>
     </div>
-
-    <!-- STANZA 3 — MEMORIA -->
     <div class="room-card room-mem" id="room-2" onclick="openRoom(2)">
       <div class="room-icon">🧠</div>
       <div class="room-name">Cripta della<br>Memoria</div>
       <div class="room-desc">Ricorda, ordina,<br>tieni tutto in testa</div>
-      <div class="room-badge">✦ Memoria di lavoro</div>
+      <div class="room-progress">
+        <div class="progress-bar"><div class="progress-fill" id="prog-2" style="width:0%"></div></div>
+        <div class="progress-label" id="prog-lbl-2">0 / ? squadre</div>
+      </div>
     </div>
-
   </div>
+
+  <button id="finale-btn" onclick="goFinale()">⭐ Risolvi l'Enigma Finale ⭐</button>
 
 </div>
 
-<!-- MODALE STANZA -->
+<!-- MODALE -->
 <div id="room-modal">
   <div class="modal-box">
     <div class="modal-icon" id="modal-icon">🔮</div>
-    <div class="modal-title" id="modal-title">Torre della Visione</div>
+    <div class="modal-title" id="modal-title"></div>
     <div class="modal-team" id="modal-team"></div>
     <div class="modal-desc" id="modal-desc"></div>
     <div class="modal-btns">
-      <button class="btn-primary" id="modal-enter-btn" onclick="enterRoom()">Entra nella stanza →</button>
+      <button class="btn-primary" onclick="enterRoom()">Entra nella stanza →</button>
       <button class="btn-secondary" onclick="closeModal()">Torna alla mappa</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST INDIZIO -->
+<!-- TOAST -->
 <div id="clue-toast">
   <div class="toast-icon" id="toast-icon">🧩</div>
   <div class="toast-title">Indizio sbloccato!</div>
@@ -541,123 +177,121 @@
 </div>
 
 <script>
-// ── STELLE ──
+// STELLE
 const sky = document.getElementById('sky');
-for (let i = 0; i < 80; i++) {
-  const s = document.createElement('div');
-  s.className = 'star';
-  const size = Math.random() * 2.2 + 0.6;
-  s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:-${Math.random()*6}s;`;
-  sky.appendChild(s);
-}
+for (let i=0;i<80;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.2+.6;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:-${Math.random()*6}s;`;sky.appendChild(s);}
 
-// ── DATI ──
-const teams   = JSON.parse(sessionStorage.getItem('teams') || '["Squadra 1","Squadra 2"]');
-const scores  = JSON.parse(sessionStorage.getItem('scores') || '[0,0]');
-const completed = JSON.parse(sessionStorage.getItem('completed') || '[false,false,false]');
-const clues     = JSON.parse(sessionStorage.getItem('clues') || '[null,null,null]');
-let currentTeam = parseInt(sessionStorage.getItem('currentTeam') || '0');
+// STATO
+const teams       = JSON.parse(sessionStorage.getItem('teams') || '["Squadra 1","Squadra 2"]');
+const scores      = JSON.parse(sessionStorage.getItem('scores') || JSON.stringify(new Array(teams.length).fill(0)));
+// completedBy[roomIndex] = array di indici squadra che hanno completato
+const completedBy = JSON.parse(sessionStorage.getItem('completedBy') || '[[],[],[]]');
+// clues: array piatto di {icon, teamName, roomName}
+const clues       = JSON.parse(sessionStorage.getItem('clues') || '[]');
+let currentTeam   = parseInt(sessionStorage.getItem('currentTeam') || '0');
+
+const numTeams = teams.length;
 
 const rooms = [
-  {
-    id: 0,
-    name: 'Torre della Visione',
-    icon: '🔮',
-    color: '#a78bfa',
-    page: 'room-viz.html',
-    desc: 'In questa stanza si ascolta una storia con gli occhi chiusi. La squadra dovrà ricordare e raccontare più dettagli possibili. Più dettagli → più punti!',
-    clueIndex: 0,
-    clueIcon: '🖼️',
-    clueLabel: 'Immagine'
-  },
-  {
-    id: 1,
-    name: 'Sala degli Indizi',
-    icon: '🔍',
-    color: '#1A8C7A',
-    page: 'room-inf.html',
-    desc: 'In questa stanza si legge un testo misterioso. La squadra deve trovare le prove nel testo e capire dove siamo, chi c\'è o cosa sta succedendo.',
-    clueIndex: 1,
-    clueIcon: '💬',
-    clueLabel: 'Parola'
-  },
-  {
-    id: 2,
-    name: 'Cripta della Memoria',
-    icon: '🧠',
-    color: '#D94F3D',
-    page: 'room-mem.html',
-    desc: 'In questa stanza la memoria è tutto! La squadra riceverà una serie di elementi da tenere in testa e usare per rispondere. Attenzione, non si può scrivere!',
-    clueIndex: 2,
-    clueIcon: '🔢',
-    clueLabel: 'Simbolo'
-  }
+  { id:0, name:'Torre della Visione', icon:'🔮', desc:'La squadra ascolta una storia con gli occhi chiusi, poi racconta i dettagli che ricorda. Più dettagli corretti → più punti!', page:'room-viz.html' },
+  { id:1, name:'Sala degli Indizi',   icon:'🔍', desc:'La squadra legge un testo misterioso e deve scoprire dove siamo, chi c\'è o cosa è successo usando solo gli indizi nel testo.', page:'room-inf.html' },
+  { id:2, name:'Cripta della Memoria',icon:'🧠', desc:'La memoria è tutto! La squadra riceve una serie di elementi da tenere in testa e usare per rispondere. Niente carta!', page:'room-mem.html' }
 ];
 
-let selectedRoom = null;
+// Determina quale squadra deve andare dove
+// Turno: currentTeam è la squadra attiva
+// Trova la prima stanza non ancora completata dalla squadra corrente
+function getNextRoomForTeam(teamIdx) {
+  for (let r=0; r<3; r++) {
+    if (!completedBy[r].includes(teamIdx)) return r;
+  }
+  return -1; // ha completato tutto
+}
 
-// ── RENDER PUNTEGGI ──
+function allDone() {
+  return completedBy.every(room => room.length >= numTeams);
+}
+
+function roomDoneByCurrentTeam(roomIdx) {
+  return completedBy[roomIdx].includes(currentTeam);
+}
+
+// RENDER
 function renderScores() {
-  const container = document.getElementById('scores-section');
+  const container = document.getElementById('scores-row');
   container.innerHTML = '';
   teams.forEach((name, i) => {
     const card = document.createElement('div');
-    card.className = 'score-card' + (i === currentTeam ? ' active-turn' : '');
-    card.innerHTML = `
-      <div class="score-name">${name}</div>
-      <div class="score-points">${scores[i]}</div>
-      <div class="score-pts-label">punti</div>
-    `;
+    card.className = 'score-card' + (i===currentTeam?' active':'');
+    card.innerHTML = `<div class="score-name">${name}</div><div class="score-pts">${scores[i]}</div><div class="score-lbl">punti</div>`;
     container.appendChild(card);
   });
 }
 
-// ── RENDER TURNO ──
 function renderTurn() {
   document.getElementById('current-team-name').textContent = teams[currentTeam];
+  const next = getNextRoomForTeam(currentTeam);
+  const sub = next === -1
+    ? '✓ Ha completato tutte le stanze!'
+    : 'Scegli una stanza da esplorare';
+  document.getElementById('turn-sub').textContent = sub;
 }
 
-// ── RENDER STANZE ──
-function renderRooms() {
-  rooms.forEach((r, i) => {
-    const card = document.getElementById('room-' + i);
-    if (completed[i]) card.classList.add('completed');
-    else card.classList.remove('completed');
-  });
-}
-
-// ── RENDER INDIZI ──
-function renderClues() {
-  clues.forEach((c, i) => {
-    const slot = document.getElementById('clue-' + i);
-    if (c) {
-      slot.textContent = c;
-      slot.classList.add('filled');
-      const lbl = document.createElement('div');
-      lbl.className = 'clue-label';
-      lbl.textContent = rooms[i].clueLabel;
-      slot.appendChild(lbl);
+function renderProgress() {
+  for (let r=0; r<3; r++) {
+    const done = completedBy[r].length;
+    const pct  = (done / numTeams) * 100;
+    document.getElementById('prog-'+r).style.width = pct + '%';
+    document.getElementById('prog-lbl-'+r).textContent = done + ' / ' + numTeams + ' squadre';
+    if (done >= numTeams) {
+      document.getElementById('room-'+r).classList.add('all-done');
     }
-  });
+  }
 }
 
-// ── APRI MODALE ──
-function openRoom(index) {
-  if (completed[index]) return;
-  selectedRoom = index;
-  const r = rooms[index];
+function renderClues() {
+  const grid = document.getElementById('clues-grid');
+  grid.innerHTML = '';
+  const total = numTeams * 3;
+  for (let i=0; i<total; i++) {
+    const chip = document.createElement('div');
+    chip.className = 'clue-chip' + (clues[i] ? ' filled' : '');
+    if (clues[i]) {
+      chip.textContent = clues[i].icon;
+      const lbl = document.createElement('div');
+      lbl.className = 'clue-chip-label';
+      lbl.textContent = clues[i].teamName;
+      chip.appendChild(lbl);
+    }
+    grid.appendChild(chip);
+  }
+}
+
+function renderFinaleBtn() {
+  if (allDone()) {
+    document.getElementById('finale-btn').style.display = 'block';
+  }
+}
+
+// MODALE
+let selectedRoom = null;
+function openRoom(idx) {
+  if (completedBy[idx].includes(currentTeam)) {
+    // già completata da questa squadra — trova stanza disponibile
+    return;
+  }
+  selectedRoom = idx;
+  const r = rooms[idx];
   document.getElementById('modal-icon').textContent  = r.icon;
   document.getElementById('modal-title').textContent = r.name;
   document.getElementById('modal-team').textContent  = '👥 ' + teams[currentTeam] + ' — tocca a voi!';
   document.getElementById('modal-desc').textContent  = r.desc;
   document.getElementById('room-modal').classList.add('open');
 }
-
 function closeModal() {
   document.getElementById('room-modal').classList.remove('open');
   selectedRoom = null;
 }
-
 function enterRoom() {
   if (selectedRoom === null) return;
   sessionStorage.setItem('currentRoom', selectedRoom);
@@ -665,58 +299,67 @@ function enterRoom() {
   window.location.href = rooms[selectedRoom].page;
 }
 
-// ── CONTROLLA SE TORNATO CON PUNTI ──
+// TORNA DALLA STANZA
 function checkReturn() {
   const justCompleted = sessionStorage.getItem('justCompleted');
-  const pointsEarned  = sessionStorage.getItem('pointsEarned');
-  const clueEarned    = sessionStorage.getItem('clueEarned');
+  if (justCompleted === null) return;
 
-  if (justCompleted !== null) {
-    const roomIdx = parseInt(justCompleted);
-    completed[roomIdx] = true;
-    sessionStorage.setItem('completed', JSON.stringify(completed));
+  const roomIdx   = parseInt(justCompleted);
+  const teamIdx   = parseInt(sessionStorage.getItem('currentTeam') || '0');
+  const pts       = parseInt(sessionStorage.getItem('pointsEarned') || '0');
+  const clueIcon  = sessionStorage.getItem('clueEarned') || '🧩';
 
-    if (pointsEarned) {
-      scores[currentTeam] += parseInt(pointsEarned);
-      sessionStorage.setItem('scores', JSON.stringify(scores));
-    }
+  // aggiorna completedBy
+  if (!completedBy[roomIdx].includes(teamIdx)) {
+    completedBy[roomIdx].push(teamIdx);
+  }
+  sessionStorage.setItem('completedBy', JSON.stringify(completedBy));
 
-    if (clueEarned) {
-      clues[roomIdx] = clueEarned;
-      sessionStorage.setItem('clues', JSON.stringify(clues));
-      showClueToast(roomIdx, clueEarned);
-    }
+  // aggiorna punteggio
+  scores[teamIdx] += pts;
+  sessionStorage.setItem('scores', JSON.stringify(scores));
 
-    // Prossima squadra
-    currentTeam = (currentTeam + 1) % teams.length;
-    sessionStorage.setItem('currentTeam', currentTeam);
+  // aggiungi indizio
+  clues.push({ icon: clueIcon, teamName: teams[teamIdx], roomName: rooms[roomIdx].name });
+  sessionStorage.setItem('clues', JSON.stringify(clues));
 
-    sessionStorage.removeItem('justCompleted');
-    sessionStorage.removeItem('pointsEarned');
-    sessionStorage.removeItem('clueEarned');
+  // prossima squadra (ruota)
+  currentTeam = (teamIdx + 1) % numTeams;
+  sessionStorage.setItem('currentTeam', currentTeam);
 
-    // Controlla se tutte completate
-    if (completed.every(Boolean)) {
-      setTimeout(() => { window.location.href = 'finale.html'; }, 2000);
-    }
+  // pulisci
+  sessionStorage.removeItem('justCompleted');
+  sessionStorage.removeItem('pointsEarned');
+  sessionStorage.removeItem('clueEarned');
+
+  // mostra toast
+  showToast(clueIcon, teams[teamIdx], rooms[roomIdx].name);
+
+  // controlla fine
+  if (allDone()) {
+    setTimeout(() => { document.getElementById('finale-btn').style.display='block'; }, 2000);
   }
 }
 
-function showClueToast(roomIdx, icon) {
+function showToast(icon, teamName, roomName) {
   const toast = document.getElementById('clue-toast');
   document.getElementById('toast-icon').textContent = icon;
-  document.getElementById('toast-text').textContent =
-    'Indizio di ' + rooms[roomIdx].name + ' aggiunto al pannello!';
+  document.getElementById('toast-text').textContent = teamName + ' ha sbloccato un indizio da ' + roomName;
   toast.style.display = 'block';
-  setTimeout(() => { toast.style.display = 'none'; }, 3500);
+  setTimeout(() => { toast.style.display='none'; }, 3500);
 }
 
-// ── INIT ──
+function goFinale() {
+  window.location.href = 'finale.html';
+}
+
+// INIT
 checkReturn();
 renderScores();
 renderTurn();
-renderRooms();
+renderProgress();
 renderClues();
+renderFinaleBtn();
 </script>
 </body>
 </html>
