@@ -299,9 +299,9 @@ const sky=document.getElementById('sky');
 for(let i=0;i<60;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+.6;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:-${Math.random()*6}s;`;sky.appendChild(s);}
 
 // DATI SESSIONE
-const teams       = JSON.parse(sessionStorage.getItem('teams')||'["Squadra 1"]');
-const currentTeam = parseInt(sessionStorage.getItem('currentTeam')||'0');
-const completedBy = JSON.parse(sessionStorage.getItem('completedBy')||'[[],[],[]]');
+const teams       = JSON.parse(localStorage.getItem('teams')||'["Squadra 1"]');
+const currentTeam = parseInt(localStorage.getItem('currentTeam')||'0');
+const completedBy = JSON.parse(localStorage.getItem('completedBy')||'[[],[],[]]');
 document.getElementById('team-pill').textContent = '👥 ' + teams[currentTeam];
 
 // ASSEGNA SFIDA in base a quante squadre hanno già giocato questa stanza
@@ -510,8 +510,8 @@ function finishRoom(){
 }
 
 function returnToMap(){
-  sessionStorage.setItem('justCompleted','0');
-  sessionStorage.setItem('pointsEarned',roomScore);
+  localStorage.setItem('justCompleted','0');
+  localStorage.setItem('pointsEarned',roomScore);
   
   window.location.href='map.html';
 }
