@@ -38,12 +38,10 @@
   /* INDIZI */
   .clues-panel { background:rgba(245,200,66,0.05); border:1.5px solid rgba(245,200,66,0.15); border-radius:16px; padding:12px 16px; }
   .clues-title { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--gold2); margin-bottom:10px; }
-  .clues-grid { display:flex; gap:6px; flex-wrap:wrap; }
-  .clue-chip { width:38px; height:38px; border-radius:10px; border:2px dashed rgba(245,200,66,0.25); background:rgba(245,200,66,0.04); display:flex; align-items:center; justify-content:center; font-size:18px; transition:all .4s ease; position:relative; }
-  .clue-chip.filled { border-style:solid; border-color:var(--gold2); background:rgba(245,200,66,0.15); animation:clueIn .5s cubic-bezier(.34,1.56,.64,1); }
+  .clues-grid { display:flex; gap:8px; flex-wrap:wrap; }
+  .clue-chip { width:38px; height:38px; border-radius:10px; border:2px dashed rgba(245,200,66,0.25); background:rgba(245,200,66,0.04); display:flex; align-items:center; justify-content:center; font-size:18px; transition:all .4s ease; }
+  .clue-chip.filled { border-style:solid; border-color:var(--gold2); background:rgba(245,200,66,0.1); animation:clueIn .5s cubic-bezier(.34,1.56,.64,1); padding:8px 12px; gap:10px; height:auto; min-height:48px; width:auto; border-radius:12px; align-items:flex-start; }
   @keyframes clueIn { from{transform:scale(0) rotate(-20deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
-  .clue-chip-label { position:absolute; bottom:-16px; font-size:8px; color:var(--gold2); font-weight:700; white-space:nowrap; opacity:0; transition:opacity .3s; }
-  .clue-chip.filled .clue-chip-label { opacity:1; }
 
   /* STANZE */
   .castle-map { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto; gap:12px; }
@@ -192,6 +190,112 @@ let currentTeam   = parseInt(sessionStorage.getItem('currentTeam') || '0');
 
 const numTeams = teams.length;
 
+// PERSONAGGI — 9 indizi ciascuno distribuiti nelle 3 stanze (3 per stanza)
+const personaggi = [
+  {
+    nome: 'Cappuccetto Rosso',
+    indizi: [
+      // Stanza 1 (viz) — 3 indizi
+      {icon:'🧺', testo:'Porta un cestino con del cibo'},
+      {icon:'🌲', testo:'Cammina da sola in un bosco'},
+      {icon:'🔴', testo:'Indossa qualcosa di rosso con il cappuccio'},
+      // Stanza 2 (inf) — 3 indizi
+      {icon:'🐺', testo:'Incontra un animale furbo e pericoloso'},
+      {icon:'👵', testo:'Va a trovare qualcuno di anziano e malato'},
+      {icon:'🌸', testo:'Raccoglie fiori lungo il cammino'},
+      // Stanza 3 (mem) — 3 indizi
+      {icon:'🏠', testo:'La sua meta è una casetta nel bosco'},
+      {icon:'🤝', testo:'Viene aiutata da un cacciatore'},
+      {icon:'🎀', testo:'È conosciuta per il suo mantello speciale'},
+    ]
+  },
+  {
+    nome: 'Medico',
+    indizi: [
+      {icon:'🩺', testo:'Ha uno strumento per ascoltare il cuore'},
+      {icon:'🏥', testo:'Lavora in un posto dove vanno i malati'},
+      {icon:'💊', testo:'Conosce i rimedi per le malattie'},
+      {icon:'🧤', testo:'Indossa guanti e camice bianchi'},
+      {icon:'🩹', testo:'Aiuta chi è ferito o sta male'},
+      {icon:'📋', testo:'Scrive ricette su un foglio speciale'},
+      {icon:'📚', testo:'Ha studiato per moltissimi anni'},
+      {icon:'⏰', testo:'Può essere chiamato in qualsiasi momento'},
+      {icon:'😊', testo:'Il suo lavoro è far stare meglio le persone'},
+    ]
+  },
+  {
+    nome: 'Babbo Natale',
+    indizi: [
+      {icon:'🎁', testo:'Porta doni a tutti i bambini del mondo'},
+      {icon:'🦌', testo:'Ha delle renne magiche che volano'},
+      {icon:'⭐', testo:'Arriva solo una notte all'anno'},
+      {icon:'🧦', testo:'Lascia i doni in una calza appesa'},
+      {icon:'🛷', testo:'Si sposta su una slitta nel cielo'},
+      {icon:'🎅', testo:'Ha una barba bianca e veste di rosso'},
+      {icon:'❄️', testo:'Viene da un posto molto freddo e nevoso'},
+      {icon:'😴', testo:'Arriva quando tutti i bambini dormono'},
+      {icon:'📝', testo:'Sa se sei stato buono o cattivo'},
+    ]
+  },
+  {
+    nome: 'Postino',
+    indizi: [
+      {icon:'✉️', testo:'Porta lettere e pacchi alle persone'},
+      {icon:'🚲', testo:'Si sposta spesso in bicicletta'},
+      {icon:'📬', testo:'Conosce tutte le case del quartiere'},
+      {icon:'🌧️', testo:'Lavora con qualsiasi tempo, pioggia o sole'},
+      {icon:'📦', testo:'Consegna pacchi di ogni forma e dimensione'},
+      {icon:'🗺️', testo:'Conosce ogni strada e ogni indirizzo'},
+      {icon:'🌅', testo:'Inizia il lavoro molto presto la mattina'},
+      {icon:'🔔', testo:'Bussa alla porta di ogni casa'},
+      {icon:'📰', testo:'Porta notizie importanti alle famiglie'},
+    ]
+  },
+  {
+    nome: 'Pompiere',
+    indizi: [
+      {icon:'🚒', testo:'Ha un camion rosso molto grande'},
+      {icon:'🪜', testo:'Usa una scala lunghissima per salire in alto'},
+      {icon:'💧', testo:'Usa l'acqua per fare il suo lavoro'},
+      {icon:'🔥', testo:'Affronta situazioni molto pericolose e calde'},
+      {icon:'🐱', testo:'A volte salva anche gli animali in pericolo'},
+      {icon:'⛑️', testo:'Indossa un casco e una tuta speciale'},
+      {icon:'🚨', testo:'Parte di corsa quando suona la sirena'},
+      {icon:'🌙', testo:'Lavora anche di notte e nei giorni di festa'},
+      {icon:'💪', testo:'Mette in salvo le persone in pericolo'},
+    ]
+  },
+  {
+    nome: 'Contadino',
+    indizi: [
+      {icon:'🌾', testo:'Coltiva i campi e raccoglie i frutti della terra'},
+      {icon:'🚜', testo:'Usa un macchinario grande e rumoroso'},
+      {icon:'🌱', testo:'Pianta semi nella terra e aspetta che crescano'},
+      {icon:'🐄', testo:'Si prende cura di animali da fattoria'},
+      {icon:'☀️', testo:'Lavora all'aperto tutto il giorno'},
+      {icon:'🍅', testo:'Produce il cibo che mangiamo ogni giorno'},
+      {icon:'🌄', testo:'Si sveglia all'alba quando è ancora buio'},
+      {icon:'🍂', testo:'Il suo lavoro cambia completamente con le stagioni'},
+      {icon:'🌍', testo:'Senza di lui non avremmo niente da mangiare'},
+    ]
+  }
+];
+
+// Estrai personaggio se non già estratto
+let personaggioIdx = parseInt(sessionStorage.getItem('personaggioIdx') ?? '-1');
+if (personaggioIdx === -1) {
+  personaggioIdx = Math.floor(Math.random() * personaggi.length);
+  sessionStorage.setItem('personaggioIdx', personaggioIdx);
+}
+const personaggio = personaggi[personaggioIdx];
+
+// Gli indizi sono distribuiti: [0-2] stanza 0, [3-5] stanza 1, [6-8] stanza 2
+// Per ogni stanza, ogni squadra sblocca un indizio diverso in base all'ordine di completamento
+function getIndizioForRoom(roomIdx, completionOrder) {
+  const base = roomIdx * 3;
+  return personaggio.indizi[base + (completionOrder % 3)];
+}
+
 const rooms = [
   { id:0, name:'Torre della Visione', icon:'🔮', desc:'La squadra ascolta una storia con gli occhi chiusi, poi racconta i dettagli che ricorda. Più dettagli corretti → più punti!', page:'room-viz.html' },
   { id:1, name:'Sala degli Indizi',   icon:'🔍', desc:'La squadra legge un testo misterioso e deve scoprire dove siamo, chi c\'è o cosa è successo usando solo gli indizi nel testo.', page:'room-inf.html' },
@@ -255,13 +359,17 @@ function renderClues() {
   const total = numTeams * 3;
   for (let i=0; i<total; i++) {
     const chip = document.createElement('div');
-    chip.className = 'clue-chip' + (clues[i] ? ' filled' : '');
     if (clues[i]) {
-      chip.textContent = clues[i].icon;
-      const lbl = document.createElement('div');
-      lbl.className = 'clue-chip-label';
-      lbl.textContent = clues[i].teamName;
-      chip.appendChild(lbl);
+      chip.className = 'clue-chip filled';
+      chip.innerHTML = `
+        <div style="font-size:22px">${clues[i].icon}</div>
+        <div>
+          <div style="font-size:11px;font-weight:800;color:var(--gold2)">${clues[i].teamName}</div>
+          <div style="font-size:12px;font-weight:600;color:rgba(253,246,227,.8)">${clues[i].testo}</div>
+        </div>`;
+    } else {
+      chip.className = 'clue-chip';
+      chip.innerHTML = `<div style="font-size:20px;color:rgba(245,200,66,.2)">?</div>`;
     }
     grid.appendChild(chip);
   }
@@ -307,7 +415,6 @@ function checkReturn() {
   const roomIdx   = parseInt(justCompleted);
   const teamIdx   = parseInt(sessionStorage.getItem('currentTeam') || '0');
   const pts       = parseInt(sessionStorage.getItem('pointsEarned') || '0');
-  const clueIcon  = sessionStorage.getItem('clueEarned') || '🧩';
 
   // aggiorna completedBy
   if (!completedBy[roomIdx].includes(teamIdx)) {
@@ -319,8 +426,10 @@ function checkReturn() {
   scores[teamIdx] += pts;
   sessionStorage.setItem('scores', JSON.stringify(scores));
 
-  // aggiungi indizio
-  clues.push({ icon: clueIcon, teamName: teams[teamIdx], roomName: rooms[roomIdx].name });
+  // indizio basato sul personaggio estratto e sull'ordine di completamento
+  const completionOrder = completedBy[roomIdx].length - 1;
+  const indizio = getIndizioForRoom(roomIdx, completionOrder);
+  clues.push({ icon: indizio.icon, testo: indizio.testo, teamName: teams[teamIdx], roomName: rooms[roomIdx].name });
   sessionStorage.setItem('clues', JSON.stringify(clues));
 
   // prossima squadra (ruota)
@@ -330,7 +439,6 @@ function checkReturn() {
   // pulisci
   sessionStorage.removeItem('justCompleted');
   sessionStorage.removeItem('pointsEarned');
-  sessionStorage.removeItem('clueEarned');
 
   // mostra toast
   showToast(clueIcon, teams[teamIdx], rooms[roomIdx].name);
