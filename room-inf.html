@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sala degli Indizi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--gold:#F5C842;--gold2:#E8A020;--cream:#FDF6E3;--ink:#1C1228;--accent:#1A8C7A;--accent2:#7de8d8;}
+  html,body{width:100%;min-height:100%;font-family:'Nunito',sans-serif;background:var(--ink);color:var(--cream);}
+  #sky{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 40% 20%,#0d3d35 0%,#1C1228 55%,#0a0810 100%);overflow:hidden;}
+  .star{position:absolute;background:#FFE680;border-radius:50%;animation:twinkle var(--dur,3s) ease-in-out infinite var(--delay,0s);}
+  @keyframes twinkle{0%,100%{opacity:.12;transform:scale(1)}50%{opacity:.8;transform:scale(1.4)}}
+  #app{position:relative;z-index:10;max-width:680px;margin:0 auto;padding:20px 20px 40px;display:flex;flex-direction:column;gap:18px;min-height:100vh;}
+
+  .room-header{display:flex;align-items:center;gap:14px;padding:14px 18px;background:rgba(26,140,122,.1);border:1.5px solid rgba(26,140,122,.3);border-radius:16px;}
+  .room-icon-big{font-size:36px;}
+  .room-header-text{flex:1;}
+  .room-eyebrow{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--accent2);margin-bottom:2px;}
+  .room-title{font-family:'Cinzel Decorative',cursive;font-size:clamp(14px,3vw,19px);color:var(--gold);}
+  .team-pill{padding:6px 14px;background:rgba(245,200,66,.12);border:1.5px solid rgba(245,200,66,.3);border-radius:20px;font-size:13px;font-weight:800;color:var(--gold);white-space:nowrap;}
+
+  .challenge-badge{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(26,140,122,.1);border:1.5px solid rgba(26,140,122,.3);border-radius:14px;}
+  .challenge-badge-icon{font-size:28px;}
+  .challenge-badge-text{flex:1;}
+  .challenge-badge-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent2);margin-bottom:2px;}
+  .challenge-badge-name{font-size:15px;font-weight:800;color:var(--cream);}
+
+  .panel{display:none;flex-direction:column;gap:14px;animation:fadeUp .4s ease;}
+  .panel.visible{display:flex;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:linear-gradient(145deg,#0d3d35 0%,#082820 100%);border:1.5px solid rgba(26,140,122,.35);border-radius:20px;padding:24px 20px;text-align:center;}
+  .card-icon{font-size:50px;margin-bottom:12px;}
+  .card-title{font-family:'Cinzel Decorative',cursive;font-size:17px;color:var(--gold);margin-bottom:8px;}
+  .card-text{font-size:14px;color:rgba(253,246,227,.7);line-height:1.6;}
+
+  /* DETECTIVE DEL TESTO */
+  .ticket-box{background:rgba(0,0,0,.35);border:1.5px solid rgba(26,140,122,.3);border-radius:16px;padding:20px 22px;}
+  .ticket-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent2);margin-bottom:8px;}
+  .ticket-text{font-size:16px;font-weight:700;color:var(--cream);line-height:1.8;font-style:italic;margin-bottom:16px;}
+  .ticket-question{font-size:14px;font-weight:800;color:var(--gold);margin-bottom:12px;}
+  .clues-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;}
+  .clue-tag{padding:5px 12px;background:rgba(26,140,122,.15);border:1px solid rgba(26,140,122,.4);border-radius:20px;font-size:12px;font-weight:700;color:var(--accent2);}
+
+  .answer-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+  .ans-btn{padding:12px 14px;background:rgba(26,140,122,.08);border:2px solid rgba(26,140,122,.25);border-radius:13px;color:var(--cream);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;}
+  .ans-btn:hover:not(.correct):not(.wrong){border-color:var(--accent);background:rgba(26,140,122,.2);}
+  .ans-btn.correct{background:rgba(26,140,122,.3);border-color:var(--accent2);color:var(--accent2);}
+  .ans-btn.wrong{background:rgba(217,79,61,.1);border-color:rgba(217,79,61,.35);color:rgba(253,246,227,.3);}
+  .feedback-box{text-align:center;padding:10px 14px;border-radius:12px;font-size:14px;font-weight:800;min-height:40px;transition:all .3s;}
+  .feedback-box.ok{background:rgba(26,140,122,.15);color:var(--accent2);}
+  .feedback-box.ko{background:rgba(217,79,61,.12);color:#ff8875;}
+
+  .score-live{display:flex;align-items:center;justify-content:center;gap:14px;padding:12px;background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.15);border-radius:14px;}
+  .score-live-num{font-family:'Cinzel Decorative',cursive;font-size:34px;color:var(--gold);line-height:1;}
+  .score-live-info .name{font-size:13px;font-weight:800;color:var(--cream);}
+  .score-live-info .lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,200,66,.5);}
+
+  /* BORSA MISTERIOSA */
+  .bag-stage{background:rgba(0,0,0,.35);border:1.5px solid rgba(26,140,122,.25);border-radius:16px;padding:20px;text-align:center;}
+  .bag-icon-area{font-size:64px;margin-bottom:8px;animation:float 3s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .bag-obj-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent2);margin-bottom:10px;}
+  .bag-objects{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;}
+  .bag-obj{padding:7px 14px;background:rgba(26,140,122,.12);border:1.5px solid rgba(26,140,122,.3);border-radius:20px;font-size:13px;font-weight:700;color:var(--cream);animation:fadeUp .4s ease;}
+  .bag-question{font-size:15px;font-weight:800;color:var(--gold);line-height:1.5;margin-bottom:4px;}
+  .bag-hint{font-size:12px;color:rgba(253,246,227,.5);font-style:italic;}
+
+  .bag-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+  .bag-opt{padding:12px;background:rgba(26,140,122,.08);border:2px solid rgba(26,140,122,.2);border-radius:13px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;}
+  .bag-opt:hover:not(.correct):not(.wrong){border-color:var(--accent);background:rgba(26,140,122,.2);}
+  .bag-opt.correct{background:rgba(26,140,122,.3);border-color:var(--accent2);color:var(--accent2);}
+  .bag-opt.wrong{background:rgba(217,79,61,.1);border-color:rgba(217,79,61,.3);color:rgba(253,246,227,.3);}
+
+  /* VOCE */
+  .voice-quote-box{background:rgba(0,0,0,.4);border:1.5px solid rgba(26,140,122,.3);border-radius:16px;padding:22px;text-align:center;}
+  .voice-qmark{font-size:36px;margin-bottom:8px;}
+  .voice-quote{font-size:17px;font-weight:700;color:var(--cream);line-height:1.7;font-style:italic;}
+  .voice-sub{font-size:12px;color:rgba(253,246,227,.5);margin-top:8px;}
+  .voice-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .voice-opt{padding:12px 14px;background:rgba(26,140,122,.08);border:2px solid rgba(26,140,122,.2);border-radius:13px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;}
+  .voice-opt:hover:not(.correct):not(.wrong){border-color:var(--accent);background:rgba(26,140,122,.2);}
+  .voice-opt.correct{background:rgba(26,140,122,.3);border-color:var(--accent2);color:var(--accent2);}
+  .voice-opt.wrong{background:rgba(217,79,61,.1);border-color:rgba(217,79,61,.3);color:rgba(253,246,227,.3);}
+
+  .btn-primary{padding:13px 32px;background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);color:var(--ink);font-family:'Cinzel Decorative',cursive;font-size:13px;font-weight:700;border:none;border-radius:50px;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(245,200,66,.35);width:100%;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(245,200,66,.5);}
+  .btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+  .btn-secondary{padding:11px 22px;background:transparent;color:rgba(253,246,227,.5);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;border:1.5px solid rgba(253,246,227,.15);border-radius:50px;cursor:pointer;transition:all .2s;width:100%;}
+  .btn-secondary:hover{border-color:rgba(253,246,227,.4);color:var(--cream);}
+
+  .clue-reveal{background:linear-gradient(145deg,#082820,#0d3d35);border:2px solid var(--gold);border-radius:20px;padding:28px 22px;text-align:center;box-shadow:0 0 40px rgba(245,200,66,.2);}
+  .cr-eyebrow{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold2);margin-bottom:8px;}
+  .cr-icon{font-size:60px;margin-bottom:10px;animation:bounceIn .6s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes bounceIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+  .cr-title{font-family:'Cinzel Decorative',cursive;font-size:19px;color:var(--gold);margin-bottom:8px;}
+  .cr-text{font-size:14px;color:rgba(253,246,227,.7);line-height:1.6;margin-bottom:18px;}
+
+  .progress-dots{display:flex;gap:6px;justify-content:center;margin-bottom:4px;}
+  .pdot{width:10px;height:10px;border-radius:50%;background:rgba(26,140,122,.2);border:1.5px solid rgba(26,140,122,.3);transition:all .3s;}
+  .pdot.done{background:var(--accent2);border-color:var(--accent2);}
+  .pdot.active{background:rgba(26,140,122,.5);border-color:var(--accent2);transform:scale(1.3);}
+</style>
+</head>
+<body>
+<div id="sky"></div>
+<div id="app">
+
+  <div class="room-header">
+    <div class="room-icon-big">🔍</div>
+    <div class="room-header-text">
+      <div class="room-eyebrow">Stanza 2 · Inferenze</div>
+      <div class="room-title">Sala degli Indizi</div>
+    </div>
+    <div class="team-pill" id="team-pill">—</div>
+  </div>
+
+  <div class="challenge-badge" id="challenge-badge">
+    <div class="challenge-badge-icon" id="badge-icon">🎲</div>
+    <div class="challenge-badge-text">
+      <div class="challenge-badge-label">Sfida assegnata</div>
+      <div class="challenge-badge-name" id="badge-name">...</div>
+    </div>
+  </div>
+
+  <!-- ══ SFIDA A: DETECTIVE DEL TESTO ══ -->
+  <div id="sfida-a" style="display:none;flex-direction:column;gap:14px;">
+    <div class="panel visible" id="a-panel-0">
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <div class="card-title">Il Detective del Testo</div>
+        <div class="card-text">Leggi il biglietto ad alta voce.<br>La squadra deve trovare le prove e rispondere alla domanda.</div>
+      </div>
+      <div class="ticket-box">
+        <div class="ticket-label">📄 Biglietto Indizio</div>
+        <div class="ticket-text" id="a-ticket-text">...</div>
+        <div class="ticket-question" id="a-ticket-question">...</div>
+        <div class="ticket-label" style="margin-top:8px">🔎 Prove nel testo</div>
+        <div class="clues-list" id="a-clues-list"></div>
+      </div>
+      <div class="score-live">
+        <div class="score-live-info"><div class="name" id="a-score-name">—</div><div class="lbl">punti questa stanza</div></div>
+        <div class="score-live-num" id="a-score-num">0</div>
+      </div>
+      <div class="answer-options" id="a-answer-options"></div>
+      <div class="feedback-box" id="a-feedback"></div>
+      <button class="btn-primary" id="a-btn-next" onclick="aNextTicket()" style="display:none">Prossimo biglietto →</button>
+      <button class="btn-primary" id="a-btn-finish" onclick="finishRoom()" style="display:none">✦ Sblocca l'indizio ✦</button>
+    </div>
+  </div>
+
+  <!-- ══ SFIDA B: LA BORSA MISTERIOSA ══ -->
+  <div id="sfida-b" style="display:none;flex-direction:column;gap:14px;">
+    <div class="panel visible" id="b-panel-0">
+      <div class="card">
+        <div class="card-icon">👜</div>
+        <div class="card-title">La Borsa Misteriosa</div>
+        <div class="card-text">Gli oggetti escono dalla borsa uno alla volta.<br>La squadra deve capire <strong>di chi è la borsa!</strong></div>
+      </div>
+      <div class="score-live">
+        <div class="score-live-info"><div class="name" id="b-score-name">—</div><div class="lbl">punti questa stanza</div></div>
+        <div class="score-live-num" id="b-score-num">0</div>
+      </div>
+      <div class="bag-stage">
+        <div class="bag-icon-area" id="b-bag-icon">🎒</div>
+        <div class="bag-obj-label">Oggetti trovati nella borsa</div>
+        <div class="bag-objects" id="b-objects-shown"></div>
+        <div class="progress-dots" id="b-pdots"></div>
+      </div>
+      <div id="b-question-area" style="display:none;flex-direction:column;gap:10px;">
+        <div class="bag-question" id="b-question">Chi è il proprietario?</div>
+        <div class="bag-hint" id="b-hint"></div>
+        <div class="bag-options" id="b-options"></div>
+        <div class="feedback-box" id="b-feedback"></div>
+      </div>
+      <button class="btn-primary" id="b-btn-reveal" onclick="bRevealNext()">Estrai il prossimo oggetto 🎲</button>
+      <button class="btn-primary" id="b-btn-finish" onclick="finishRoom()" style="display:none">✦ Sblocca l'indizio ✦</button>
+    </div>
+  </div>
+
+  <!-- ══ SFIDA C: DI CHI È LA VOCE? ══ -->
+  <div id="sfida-c" style="display:none;flex-direction:column;gap:14px;">
+    <div class="panel visible" id="c-panel-0">
+      <div class="card">
+        <div class="card-icon">🎙️</div>
+        <div class="card-title">Di chi è la voce?</div>
+        <div class="card-text">Leggi la battuta ad alta voce.<br>La squadra deve capire <strong>chi sta parlando!</strong></div>
+      </div>
+      <div class="score-live">
+        <div class="score-live-info"><div class="name" id="c-score-name">—</div><div class="lbl">punti questa stanza</div></div>
+        <div class="score-live-num" id="c-score-num">0</div>
+      </div>
+      <div class="voice-quote-box">
+        <div class="voice-qmark">💬</div>
+        <div class="voice-quote" id="c-quote">...</div>
+        <div class="voice-sub">Chi sta dicendo questa cosa?</div>
+      </div>
+      <div class="progress-dots" id="c-pdots"></div>
+      <div class="voice-options" id="c-options"></div>
+      <div class="feedback-box" id="c-feedback"></div>
+      <button class="btn-primary" id="c-btn-next" onclick="cNextVoice()" style="display:none">Prossima battuta →</button>
+      <button class="btn-primary" id="c-btn-finish" onclick="finishRoom()" style="display:none">✦ Sblocca l'indizio ✦</button>
+    </div>
+  </div>
+
+  <!-- RIVELAZIONE -->
+  <div class="panel" id="panel-clue">
+    <div class="clue-reveal">
+      <div class="cr-eyebrow">🧩 Indizio sbloccato</div>
+      <div class="cr-icon">💬</div>
+      <div class="cr-title">Un frammento della verità</div>
+      <div class="cr-text">Questo indizio servirà per l'enigma finale.<br><strong style="color:var(--gold)">Ricordatelo bene!</strong><br><br>Punti guadagnati: <span id="final-score" style="color:var(--gold);font-size:18px;font-weight:800">0</span></div>
+    </div>
+    <button class="btn-primary" onclick="returnToMap()">← Torna alla mappa</button>
+  </div>
+
+</div>
+<script>
+// STELLE
+const sky=document.getElementById('sky');
+for(let i=0;i<60;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+.6;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:-${Math.random()*6}s;`;sky.appendChild(s);}
+
+const teams=JSON.parse(sessionStorage.getItem('teams')||'["Squadra 1"]');
+const currentTeam=parseInt(sessionStorage.getItem('currentTeam')||'0');
+const completedBy=JSON.parse(sessionStorage.getItem('completedBy')||'[[],[],[]]');
+document.getElementById('team-pill').textContent='👥 '+teams[currentTeam];
+
+const doneCount=completedBy[1].length;
+const sfidaIndex=doneCount%3;
+const sfidaNames=['Il detective del testo','La borsa misteriosa','Di chi è la voce?'];
+const sfidaIcons=['🔍','👜','🎙️'];
+document.getElementById('badge-icon').textContent=sfidaIcons[sfidaIndex];
+document.getElementById('badge-name').textContent=sfidaNames[sfidaIndex];
+
+// DATI
+const tickets=[
+  {text:'La sabbia scottava sotto i piedi e il grido dei gabbiani copriva il rumore delle onde.',question:'In quale luogo si trova il protagonista?',clues:['Sabbia scottante','Gabbiani','Onde'],options:['🏖️ Spiaggia','🏔️ Montagna','🌲 Bosco','🏙️ Città'],correct:0},
+  {text:'Luca spense l\'abat-jour sul comodino, abbracciò il suo orsetto e si tirò il piumone fin sotto il mento.',question:'In quale momento della giornata ci troviamo?',clues:['Lampada spenta','Orsetto','Piumone'],options:['🌅 Mattina','☀️ Pomeriggio','🌙 Sera / notte','🍽️ Ora di pranzo'],correct:2},
+  {text:'Sul pavimento c\'erano ancora dei coriandoli colorati e un palloncino sgonfio. Sul tavolo restavano solo le candeline usate.',question:'Cosa è successo poco prima in quella stanza?',clues:['Coriandoli','Palloncino sgonfio','Candeline usate'],options:['🎂 Festa di compleanno','🎄 Natale','🏫 Fine scuola','💒 Matrimonio'],correct:0},
+  {text:'Marta camminava calpestando le foglie secche che scricchiolavano. Intorno a lei, gli alberi stavano diventando rossi e arancioni.',question:'In quale stagione siamo?',clues:['Foglie secche','Alberi rossi e arancioni'],options:['🌸 Primavera','☀️ Estate','🍂 Autunno','❄️ Inverno'],correct:2},
+  {text:'Con il camice bianco e lo stetoscopio al collo, ascoltò attentamente il battito del petto del piccolo paziente.',question:'Chi è il personaggio misterioso?',clues:['Camice bianco','Stetoscopio','Paziente'],options:['👨‍⚕️ Medico','👨‍🍳 Cuoco','👨‍🔬 Scienziato','👨‍🏫 Insegnante'],correct:0},
+  {text:'Giulia guardava fuori dalla finestra il cielo grigio. Aveva gli angoli della bocca all\'ingiù e continuava a sospirare stringendo la sua bambola.',question:'Come si sente Giulia?',clues:['Bocca all\'ingiù','Sospiri','Cielo grigio'],options:['😊 Felice','😢 Triste / annoiata','😠 Arrabbiata','😨 Spaventata'],correct:1},
+  {text:'Leo sentì le guance diventare improvvisamente caldissime e rosse. Abbassò subito lo sguardo e desiderò quasi di poter diventare invisibile.',question:'Quale emozione prova Leo?',clues:['Guance rosse','Abbassa lo sguardo','Vuole sparire'],options:['😡 Rabbia','😂 Divertimento','😳 Vergogna / imbarazzo','😱 Paura'],correct:2},
+  {text:'All\'improvviso le luci si spensero del tutto. Sara spalancò gli occhi nel buio pesto e corse a stringere forte il braccio del papà.',question:'Perché Sara stringe il braccio del papà?',clues:['Buio improvviso','Occhi spalancati','Corre dal papà'],options:['😄 È una sorpresa bella','😨 Ha paura del buio','😴 Ha sonno','😡 È arrabbiata'],correct:1},
+  {text:'Si mise la maschera sul viso, strinse le pinne ai piedi e si tuffò dalla barca scomparendo sotto la superficie blu.',question:'Quale attività sta facendo?',clues:['Maschera','Pinne','Sott\'acqua'],options:['🏊 Nuoto in piscina','🤿 Immersione / snorkeling','🚣 Canottaggio','🏄 Surf'],correct:1},
+  {text:'La nonna prese ago e filo, infilò gli occhiali sul naso e cercò di riparare lo strappo sul ginocchio dei pantaloni.',question:'Cosa sta facendo la nonna?',clues:['Ago e filo','Strappo sui pantaloni','Riparare'],options:['✂️ Taglia la stoffa','🧵 Cuce / rammenda','🎨 Dipinge','📏 Misura'],correct:1}
+];
+
+const bags=[
+  {persona:'👨‍🍳 Pasticcere / Panettiere',objects:['👒 Cappello bianco a bustina','🥄 Cucchiaio infarinato','🎿 Mattarello','🍞 Bustina di lievito'],question:'Chi è il proprietario della borsa?',hint:'La farina e il lievito ci dicono che lavora con il cibo... ma quale cibo?',options:['👨‍🍳 Pasticcere','👷 Muratore','👨‍🌾 Contadino','👨‍🔬 Scienziato'],correct:0},
+  {persona:'🌱 Giardiniere',objects:['🧤 Guanti sporchi di terra','🌻 Bustina di semi','✂️ Forbici da potatura','🪴 Sottovaso'],question:'Chi è il proprietario della borsa?',hint:'I semi e la terra ci dicono che questa persona lavora con le piante...',options:['👷 Operaio','🌱 Giardiniere','🏕️ Campeggiatore','👨‍🍳 Cuoco'],correct:1},
+  {persona:'🏔️ Escursionista sulla neve',objects:['🧤 Guanti da sci spessi','💄 Burrocacao','🧣 Scalda-collo','☕ Thermos di metallo'],question:'Dove sta andando questa persona?',hint:'Il thermos tiene il calore... perché ne ha bisogno?',options:['🏖️ Mare in estate','🏔️ Montagna sulla neve','🎪 Circo','🏊 Piscina'],correct:1},
+  {persona:'✈️ Viaggiatore in aereo',objects:['📘 Passaporto','🍩 Cuscino a U per il collo','😷 Mascherina per gli occhi','🎫 Biglietto stampato'],question:'Dove sta andando questa persona?',hint:'Il cuscino a ciambella serve per dormire... ma dove?',options:['🚂 Treno breve','✈️ Aereo / viaggio lungo','🚗 Gita in auto','🚢 Gita in barca'],correct:1},
+  {persona:'🧺 Cappuccetto Rosso',objects:['🍯 Vasetto di marmellata','🔴 Pezzo di stoffa rossa','🥪 Panino finto','🌸 Fiori finti'],question:'Di chi è questa borsa?',hint:'Il cibo e i fiori... per chi potrebbero essere? Il colore della stoffa ti suggerisce un nome...',options:['🐺 La borsa del lupo','🧺 Cappuccetto Rosso','👵 La nonna','🌲 Il cacciatore'],correct:1},
+  {persona:'🧙 Mago / Prestigiatore',objects:['🃏 Mazzo di carte','🪄 Bacchetta nera','🧤 Guanti bianchi','🎩 Cilindro di cartone'],question:'Di chi è questa borsa?',hint:'La bacchetta e il cilindro insieme... cosa fanno venire in mente?',options:['🎓 Professore','🧙 Mago / Prestigiatore','🃏 Giocatore di carte','👔 Presentatore TV'],correct:1}
+];
+
+const voices=[
+  {quote:'"Attenti, ho le forbici! Siediti fermo o ti taglio storto!"',options:['✂️ Parrucchiere','👮 Poliziotto','🍽️ Cameriere','👩‍🏫 Maestra'],correct:0},
+  {quote:'"Apri bene la bocca… di più. Ora dimmi se senti questo."',options:['🦷 Dentista','🎵 Cantante','👨‍⚕️ Medico generico','🔬 Scienziato'],correct:0},
+  {quote:'"Silenzio in aula! Chi non ha fatto i compiti alzi la mano."',options:['📚 Bibliotecaria','👩‍🏫 Maestra','🧑‍💼 Direttore','🎭 Attrice'],correct:1},
+  {quote:'"Prossima fermata: Piazza Garibaldi. Ricordate di timbrare il biglietto."',options:['🚂 Capotreno','🚌 Autista del bus','📻 Speaker radio','🎪 Presentatore'],correct:1},
+  {quote:'"Fermo! Le mani sul volante e i documenti per favore."',options:['🅿️ Parcheggiatore','👮 Poliziotto','🚗 Autista','🏎️ Pilota'],correct:1},
+  {quote:'"Respira piano… ancora… bene. Il cuore va benissimo."',options:['🧘 Istruttore yoga','👨‍⚕️ Medico','🏃 Allenatore','🎵 Cantante'],correct:1},
+  {quote:'"Attenzione passeggeri, tra venti minuti atterriamo."',options:['✈️ Pilota','🚂 Capotreno','🚢 Capitano','📻 Speaker'],correct:0},
+  {quote:'"Vuoi che te lo incarto? È un regalo?"',options:['🎁 Babbo Natale','🛍️ Commesso','📦 Corriere','🎨 Artigiano'],correct:1},
+  {quote:'"Dai, ancora dieci vasche e poi ti faccio riposare!"',options:['🏊 Allenatore di nuoto','🏋️ Personal trainer','⚽ Allenatore calcio','🎾 Maestro tennis'],correct:0},
+  {quote:'"Quanta farina ci vuole? E le uova le metto subito o dopo?"',options:['🧪 Chimico','👨‍🍳 Cuoco / Pasticcere','👩‍🏫 Maestra di scienze','🌾 Mugnaio'],correct:1}
+];
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+// SETUP SCORE
+document.getElementById('a-score-name').textContent=teams[currentTeam];
+document.getElementById('b-score-name').textContent=teams[currentTeam];
+document.getElementById('c-score-name').textContent=teams[currentTeam];
+
+let roomScore=0;
+
+// ══ SFIDA A: DETECTIVE ══
+const shuffledTickets=shuffle(tickets).slice(0,3);
+let aIdx=0;
+
+function aLoad(){
+  const t=shuffledTickets[aIdx];
+  document.getElementById('a-ticket-text').textContent=t.text;
+  document.getElementById('a-ticket-question').textContent='🔎 '+t.question;
+  const cl=document.getElementById('a-clues-list');
+  cl.innerHTML='';
+  t.clues.forEach(c=>{const tag=document.createElement('div');tag.className='clue-tag';tag.textContent=c;cl.appendChild(tag);});
+  const opts=document.getElementById('a-answer-options');
+  opts.innerHTML='';
+  document.getElementById('a-feedback').textContent='';
+  document.getElementById('a-feedback').className='feedback-box';
+  document.getElementById('a-btn-next').style.display='none';
+  t.options.forEach((o,i)=>{
+    const btn=document.createElement('button');
+    btn.className='ans-btn';
+    btn.textContent=o;
+    btn.onclick=()=>aAnswer(i,t.correct);
+    opts.appendChild(btn);
+  });
+}
+
+function aAnswer(idx,correct){
+  const btns=document.querySelectorAll('.ans-btn');
+  btns.forEach(b=>b.onclick=null);
+  const fb=document.getElementById('a-feedback');
+  if(idx===correct){
+    btns[idx].classList.add('correct');
+    roomScore++;
+    document.getElementById('a-score-num').textContent=roomScore;
+    fb.textContent='✅ Esatto! Ottimo collegamento!';
+    fb.className='feedback-box ok';
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[correct].classList.add('correct');
+    fb.textContent='❌ Non proprio... la risposta era: '+shuffledTickets[aIdx].options[correct];
+    fb.className='feedback-box ko';
+  }
+  aIdx++;
+  if(aIdx<shuffledTickets.length){
+    document.getElementById('a-btn-next').style.display='block';
+  } else {
+    document.getElementById('a-btn-finish').style.display='block';
+  }
+}
+
+function aNextTicket(){
+  document.getElementById('a-btn-next').style.display='none';
+  aLoad();
+}
+
+// ══ SFIDA B: BORSA ══
+const bag=shuffle(bags)[0];
+let bObjIdx=0;
+let bAnswered=false;
+
+function bInit(){
+  const pdots=document.getElementById('b-pdots');
+  pdots.innerHTML='';
+  bag.objects.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='pdot'+(i===0?' active':'');
+    d.id='bpdot-'+i;
+    pdots.appendChild(d);
+  });
+}
+
+function bRevealNext(){
+  if(bObjIdx>=bag.objects.length){
+    bShowQuestion();
+    return;
+  }
+  const shown=document.getElementById('b-objects-shown');
+  const obj=document.createElement('div');
+  obj.className='bag-obj';
+  obj.textContent=bag.objects[bObjIdx];
+  shown.appendChild(obj);
+  // aggiorna dots
+  if(bObjIdx>0) document.getElementById('bpdot-'+(bObjIdx-1)).className='pdot done';
+  document.getElementById('bpdot-'+bObjIdx).className='pdot active';
+  bObjIdx++;
+  if(bObjIdx>=bag.objects.length){
+    document.getElementById('b-btn-reveal').textContent='Chi è il proprietario? →';
+  }
+}
+
+function bShowQuestion(){
+  document.getElementById('b-btn-reveal').style.display='none';
+  const qa=document.getElementById('b-question-area');
+  qa.style.display='flex';
+  document.getElementById('b-question').textContent=bag.question;
+  document.getElementById('b-hint').textContent='💡 '+bag.hint;
+  const opts=document.getElementById('b-options');
+  bag.options.forEach((o,i)=>{
+    const btn=document.createElement('button');
+    btn.className='bag-opt';
+    btn.textContent=o;
+    btn.onclick=()=>bAnswer(i,bag.correct);
+    opts.appendChild(btn);
+  });
+  // completa dots
+  bag.objects.forEach((_,i)=>{ document.getElementById('bpdot-'+i).className='pdot done'; });
+}
+
+function bAnswer(idx,correct){
+  const btns=document.querySelectorAll('.bag-opt');
+  btns.forEach(b=>b.onclick=null);
+  const fb=document.getElementById('b-feedback');
+  if(idx===correct){
+    btns[idx].classList.add('correct');
+    roomScore+=2;
+    document.getElementById('b-score-num').textContent=roomScore;
+    fb.textContent='✅ Esatto! Avete letto bene gli indizi!';
+    fb.className='feedback-box ok';
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[correct].classList.add('correct');
+    fb.textContent='❌ Non esatto... era: '+bag.options[correct];
+    fb.className='feedback-box ko';
+  }
+  document.getElementById('b-btn-finish').style.display='block';
+}
+
+// ══ SFIDA C: VOCE ══
+const shuffledVoices=shuffle(voices).slice(0,3);
+let cIdx=0;
+
+function cInitDots(){
+  const pd=document.getElementById('c-pdots');
+  pd.innerHTML='';
+  shuffledVoices.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='pdot'+(i===0?' active':'');
+    d.id='cpdot-'+i;
+    pd.appendChild(d);
+  });
+}
+
+function cLoad(){
+  const v=shuffledVoices[cIdx];
+  document.getElementById('c-quote').textContent=v.quote;
+  document.getElementById('c-feedback').textContent='';
+  document.getElementById('c-feedback').className='feedback-box';
+  document.getElementById('c-btn-next').style.display='none';
+  const opts=document.getElementById('c-options');
+  opts.innerHTML='';
+  v.options.forEach((o,i)=>{
+    const btn=document.createElement('button');
+    btn.className='voice-opt';
+    btn.textContent=o;
+    btn.onclick=()=>cAnswer(i,v.correct);
+    opts.appendChild(btn);
+  });
+}
+
+function cAnswer(idx,correct){
+  const btns=document.querySelectorAll('.voice-opt');
+  btns.forEach(b=>b.onclick=null);
+  const fb=document.getElementById('c-feedback');
+  if(idx===correct){
+    btns[idx].classList.add('correct');
+    roomScore++;
+    document.getElementById('c-score-num').textContent=roomScore;
+    fb.textContent='✅ Esatto! Avete riconosciuto la voce!';
+    fb.className='feedback-box ok';
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[correct].classList.add('correct');
+    fb.textContent='❌ Non proprio... era: '+shuffledVoices[cIdx].options[correct];
+    fb.className='feedback-box ko';
+  }
+  if(cIdx>0) document.getElementById('cpdot-'+(cIdx-1)).className='pdot done';
+  document.getElementById('cpdot-'+cIdx).className='pdot done';
+  cIdx++;
+  if(cIdx<shuffledVoices.length){
+    document.getElementById('c-btn-next').style.display='block';
+    if(cIdx<shuffledVoices.length) document.getElementById('cpdot-'+cIdx).className='pdot active';
+  } else {
+    document.getElementById('c-btn-finish').style.display='block';
+  }
+}
+
+function cNextVoice(){
+  document.getElementById('c-btn-next').style.display='none';
+  cLoad();
+}
+
+// MOSTRA SFIDA
+function showSfida(){
+  ['sfida-a','sfida-b','sfida-c'].forEach((id,i)=>{
+    document.getElementById(id).style.display=(i===sfidaIndex)?'flex':'none';
+  });
+  if(sfidaIndex===0) aLoad();
+  if(sfidaIndex===1) bInit();
+  if(sfidaIndex===2){cInitDots();cLoad();}
+}
+showSfida();
+
+function finishRoom(){
+  document.getElementById('final-score').textContent=roomScore;
+  ['sfida-a','sfida-b','sfida-c'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('challenge-badge').style.display='none';
+  document.getElementById('panel-clue').classList.add('visible');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function returnToMap(){
+  sessionStorage.setItem('justCompleted','1');
+  sessionStorage.setItem('pointsEarned',roomScore);
+  sessionStorage.setItem('clueEarned','💬');
+  window.location.href='map.html';
+}
+</script>
+</body>
+</html>
