@@ -40,17 +40,27 @@
   .score-live-info .name{font-size:13px;font-weight:800;color:var(--cream);}
   .score-live-info .lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,200,66,.5);}
 
-  /* GAMBERO */
-  .sequence-display{background:rgba(0,0,0,.4);border:1.5px solid rgba(217,79,61,.3);border-radius:16px;padding:24px;text-align:center;}
-  .seq-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent2);margin-bottom:12px;}
-  .seq-words{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;}
-  .seq-word{padding:10px 18px;background:rgba(217,79,61,.15);border:2px solid rgba(217,79,61,.4);border-radius:12px;font-size:18px;font-weight:800;color:var(--cream);transition:all .3s;}
-  .seq-word.highlight{background:rgba(217,79,61,.35);border-color:var(--accent2);color:var(--accent2);transform:scale(1.08);}
-  .seq-arrow{font-size:24px;color:rgba(217,79,61,.5);margin:8px 0;}
-  .seq-reversed{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-  .seq-rev-word{padding:8px 16px;background:rgba(245,200,66,.1);border:2px dashed rgba(245,200,66,.3);border-radius:12px;font-size:16px;font-weight:800;color:rgba(245,200,66,.5);}
-  .seq-rev-word.revealed{background:rgba(245,200,66,.18);border-style:solid;border-color:var(--gold2);color:var(--gold);}
-
+  /* GAMBERO — 3 fasi */
+  .gambero-phase{display:none;flex-direction:column;gap:14px;animation:fadeUp .4s ease;}
+  .gambero-phase.visible{display:flex;}
+  .word-spotlight{background:rgba(0,0,0,.5);border:1.5px solid rgba(217,79,61,.3);border-radius:16px;padding:32px 20px;text-align:center;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .word-big{font-family:'Cinzel Decorative',cursive;font-size:clamp(28px,6vw,42px);color:var(--accent2);animation:wordIn .3s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes wordIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+  .word-counter{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(217,79,61,.6);margin-top:8px;}
+  .word-progress{display:flex;gap:6px;justify-content:center;margin-top:10px;}
+  .wp-dot{width:10px;height:10px;border-radius:50%;background:rgba(217,79,61,.2);border:1.5px solid rgba(217,79,61,.3);transition:all .3s;}
+  .wp-dot.done{background:var(--accent2);border-color:var(--accent2);}
+  .wp-dot.active{background:rgba(217,79,61,.6);transform:scale(1.3);}
+  .write-box{background:rgba(0,0,0,.4);border:1.5px solid rgba(217,79,61,.25);border-radius:16px;padding:20px;text-align:center;}
+  .write-label{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent2);margin-bottom:14px;}
+  .write-inputs{display:flex;flex-direction:column;gap:10px;}
+  .write-row{display:flex;align-items:center;gap:10px;}
+  .write-num{width:28px;height:28px;border-radius:50%;background:rgba(217,79,61,.2);border:1.5px solid rgba(217,79,61,.4);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--accent2);flex-shrink:0;}
+  .write-input{flex:1;padding:10px 14px;background:rgba(255,255,255,.06);border:1.5px solid rgba(217,79,61,.3);border-radius:10px;color:var(--cream);font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;outline:none;transition:border-color .2s;}
+  .write-input::placeholder{color:rgba(253,246,227,.25);}
+  .write-input:focus{border-color:var(--accent2);}
+  .write-input.correct{border-color:#1A8C7A;background:rgba(26,140,122,.15);color:#7de8d8;}
+  .write-input.wrong{border-color:rgba(217,79,61,.7);background:rgba(217,79,61,.1);color:#ff8875;}
   .gambero-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
   .g-opt{padding:11px 14px;background:rgba(217,79,61,.08);border:2px solid rgba(217,79,61,.2);border-radius:13px;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;text-align:center;color:var(--cream);}
   .g-opt:hover:not(.correct):not(.wrong){border-color:var(--accent);background:rgba(217,79,61,.2);}
@@ -139,20 +149,30 @@
     <div class="card">
       <div class="card-icon">🦀</div>
       <div class="card-title">Il Gambero che Parla</div>
-      <div class="card-text">Leggi le parole nell'ordine.<br>La squadra deve ripeterle <strong>al contrario</strong>, dall'ultima alla prima!</div>
+      <div class="card-text">Le parole appaiono una alla volta, poi spariscono.<br>Scrivete l'ordine <strong>al contrario!</strong></div>
     </div>
     <div class="score-live">
       <div class="score-live-info"><div class="name" id="a-score-name">—</div><div class="lbl">punti questa stanza</div></div>
       <div class="score-live-num" id="a-score-num">0</div>
     </div>
     <div class="progress-dots" id="a-pdots"></div>
-    <div class="sequence-display">
-      <div class="seq-label">🔊 Leggi queste parole nell'ordine</div>
-      <div class="seq-words" id="a-seq-words"></div>
-      <div class="seq-arrow">↓ al contrario ↓</div>
-      <div class="seq-reversed" id="a-seq-reversed"></div>
+    <!-- FASE 1: mostra parole -->
+    <div class="gambero-phase visible" id="a-phase-1">
+      <div class="word-spotlight">
+        <div class="word-big" id="a-word-display">Pronto?</div>
+        <div class="word-counter" id="a-word-counter"></div>
+        <div class="word-progress" id="a-word-progress"></div>
+      </div>
+      <button class="btn-primary" id="a-btn-start" onclick="aStartSequence()">▶ Inizia la sequenza</button>
     </div>
-    <div class="gambero-options" id="a-options"></div>
+    <!-- FASE 2: scrivi al contrario -->
+    <div class="gambero-phase" id="a-phase-2">
+      <div class="write-box">
+        <div class="write-label">🦀 Scrivi le parole AL CONTRARIO — dall'ultima alla prima</div>
+        <div class="write-inputs" id="a-write-inputs"></div>
+      </div>
+      <button class="btn-primary" onclick="aCheckAnswers()">Verifica ✓</button>
+    </div>
     <div class="feedback-box" id="a-feedback"></div>
     <button class="btn-primary" id="a-btn-next" onclick="aNext()" style="display:none">Prossima sequenza →</button>
     <button class="btn-primary" id="a-btn-finish" onclick="finishRoom()" style="display:none">✦ Sblocca l'indizio ✦</button>
@@ -163,19 +183,27 @@
     <div class="card">
       <div class="card-icon">🎯</div>
       <div class="card-title">Il Bersaglio Mobile</div>
-      <div class="card-text">Leggi i numeri ad alta voce.<br>La squadra li tiene in testa e risponde al comando <strong>senza scrivere!</strong></div>
+      <div class="card-text">I numeri appaiono uno alla volta, poi spariscono.<br>Rispondete al comando <strong>senza scrivere!</strong></div>
     </div>
     <div class="score-live">
       <div class="score-live-info"><div class="name" id="b-score-name">—</div><div class="lbl">punti questa stanza</div></div>
       <div class="score-live-num" id="b-score-num">0</div>
     </div>
     <div class="progress-dots" id="b-pdots"></div>
-    <div class="numbers-display">
-      <div class="seq-label">🔢 Numeri da ricordare</div>
-      <div class="numbers-row" id="b-numbers-row"></div>
-      <div class="command-box"><div class="command-text" id="b-command">...</div></div>
+    <!-- FASE 1: mostra numeri -->
+    <div class="gambero-phase visible" id="b-phase-1">
+      <div class="word-spotlight">
+        <div class="word-big" id="b-num-display">Pronti?</div>
+        <div class="word-counter" id="b-num-counter"></div>
+        <div class="word-progress" id="b-num-progress"></div>
+      </div>
+      <button class="btn-primary" id="b-btn-start" onclick="bStartSequence()">▶ Inizia la sequenza</button>
     </div>
-    <div class="answer-input-row" id="b-answer-row"></div>
+    <!-- FASE 2: comando + opzioni -->
+    <div class="gambero-phase" id="b-phase-2">
+      <div class="command-box"><div class="command-text" id="b-command">...</div></div>
+      <div class="answer-input-row" id="b-answer-row"></div>
+    </div>
     <div class="feedback-box" id="b-feedback"></div>
     <button class="btn-primary" id="b-btn-next" onclick="bNext()" style="display:none">Prossima sfida →</button>
     <button class="btn-primary" id="b-btn-finish" onclick="finishRoom()" style="display:none">✦ Sblocca l'indizio ✦</button>
@@ -300,42 +328,88 @@ function aInitDots(){
 }
 
 function aLoad(){
-  const s=aSeries[aIdx];
-  const sw=document.getElementById('a-seq-words');sw.innerHTML='';
-  s.words.forEach(w=>{const d=document.createElement('div');d.className='seq-word';d.textContent=w;sw.appendChild(d);});
-  const sr=document.getElementById('a-seq-reversed');sr.innerHTML='';
-  [...s.words].reverse().forEach(w=>{const d=document.createElement('div');d.className='seq-rev-word';d.textContent='?';d.dataset.word=w;sr.appendChild(d);});
-  // genera opzioni: risposta corretta + distrattori
-  const correct=s.answer;
-  const distractors=shuffle(aSeries.filter((_,i)=>i!==aIdx).map(x=>x.words.slice().reverse().join(' · '))).slice(0,3);
-  const allOpts=shuffle([correct,...distractors]);
-  const opts=document.getElementById('a-options');opts.innerHTML='';
-  document.getElementById('a-feedback').textContent='';document.getElementById('a-feedback').className='feedback-box';
+  // reset fasi
+  document.getElementById('a-phase-1').classList.add('visible');
+  document.getElementById('a-phase-2').classList.remove('visible');
+  document.getElementById('a-feedback').textContent='';
+  document.getElementById('a-feedback').className='feedback-box';
   document.getElementById('a-btn-next').style.display='none';
-  allOpts.forEach(o=>{
-    const btn=document.createElement('button');btn.className='g-opt';btn.textContent=o;
-    btn.onclick=()=>aAnswer(btn,o===correct,s);
-    opts.appendChild(btn);
-  });
+  document.getElementById('a-word-display').textContent='Pronto?';
+  document.getElementById('a-word-counter').textContent='';
+  document.getElementById('a-btn-start').style.display='block';
+  // build progress dots per le parole
+  const s=aSeries[aIdx];
+  const wp=document.getElementById('a-word-progress');wp.innerHTML='';
+  s.words.forEach((_,i)=>{const d=document.createElement('div');d.className='wp-dot';d.id='wp-'+i;wp.appendChild(d);});
 }
 
-function aAnswer(btn,isCorrect,s){
-  document.querySelectorAll('.g-opt').forEach(b=>b.onclick=null);
-  const fb=document.getElementById('a-feedback');
-  // rivela la sequenza
-  document.querySelectorAll('#a-seq-reversed .seq-rev-word').forEach((el,i)=>{
-    el.textContent=el.dataset.word;el.classList.add('revealed');
-  });
-  if(isCorrect){
-    btn.classList.add('correct');roomScore++;
-    document.getElementById('a-score-num').textContent=roomScore;
-    fb.textContent='✅ Perfetto! La memoria funziona!';fb.className='feedback-box ok';
-  } else {
-    btn.classList.add('wrong');
-    // evidenzia quella corretta
-    document.querySelectorAll('.g-opt').forEach(b=>{if(b.textContent===s.answer)b.classList.add('correct');});
-    fb.textContent='❌ Non esatto. Ecco la sequenza corretta!';fb.className='feedback-box ko';
+let aWordTimer=null;
+function aStartSequence(){
+  const s=aSeries[aIdx];
+  document.getElementById('a-btn-start').style.display='none';
+  let wi=0;
+  function showWord(){
+    if(wi>0) document.getElementById('wp-'+(wi-1)).className='wp-dot done';
+    if(wi<s.words.length){
+      document.getElementById('wp-'+wi).className='wp-dot active';
+      const wd=document.getElementById('a-word-display');
+      wd.style.animation='none';
+      wd.offsetHeight; // reflow
+      wd.style.animation='';
+      wd.textContent=s.words[wi];
+      document.getElementById('a-word-counter').textContent=(wi+1)+' di '+s.words.length;
+      wi++;
+      aWordTimer=setTimeout(showWord,1800);
+    } else {
+      // tutte le parole mostrate — spariscono
+      document.getElementById('a-word-display').textContent='✦';
+      document.getElementById('a-word-counter').textContent='Ora scrivete al contrario!';
+      s.words.forEach((_,i)=>document.getElementById('wp-'+i).className='wp-dot done');
+      setTimeout(()=>{
+        document.getElementById('a-phase-1').classList.remove('visible');
+        aShowWritePhase(s);
+      },800);
+    }
   }
+  showWord();
+}
+
+function aShowWritePhase(s){
+  document.getElementById('a-phase-2').classList.add('visible');
+  const container=document.getElementById('a-write-inputs');container.innerHTML='';
+  const reversed=[...s.words].reverse();
+  reversed.forEach((w,i)=>{
+    const row=document.createElement('div');row.className='write-row';
+    const num=document.createElement('div');num.className='write-num';num.textContent=i+1;
+    const inp=document.createElement('input');
+    inp.type='text';inp.className='write-input';
+    inp.placeholder='Parola '+(i+1)+'...';
+    inp.dataset.correct=w.toLowerCase();
+    inp.autocomplete='off';
+    row.appendChild(num);row.appendChild(inp);
+    container.appendChild(row);
+  });
+  // focus sul primo input
+  setTimeout(()=>{const first=container.querySelector('input');if(first)first.focus();},100);
+}
+
+function aCheckAnswers(){
+  const s=aSeries[aIdx];
+  const reversed=[...s.words].reverse();
+  const inputs=document.querySelectorAll('#a-write-inputs .write-input');
+  let correct=0;
+  inputs.forEach((inp,i)=>{
+    const val=inp.value.trim().toLowerCase();
+    const exp=reversed[i].toLowerCase();
+    inp.disabled=true;
+    if(val===exp){inp.classList.add('correct');correct++;}
+    else{inp.classList.add('wrong');inp.value=inp.value+' → '+reversed[i];}
+  });
+  roomScore+=correct;
+  document.getElementById('a-score-num').textContent=roomScore;
+  const fb=document.getElementById('a-feedback');
+  if(correct===reversed.length){fb.textContent='✅ Perfetto! Tutte le parole corrette!';fb.className='feedback-box ok';}
+  else{fb.textContent=correct+' su '+reversed.length+' corrette. Le correzioni sono evidenziate!';fb.className='feedback-box ko';}
   document.getElementById('apdot-'+aIdx).className='pdot done';
   aIdx++;
   if(aIdx<aSeries.length){
@@ -358,21 +432,59 @@ function bInitDots(){
 }
 
 function bLoad(){
+  // reset fasi
+  document.getElementById('b-phase-1').classList.add('visible');
+  document.getElementById('b-phase-2').classList.remove('visible');
+  document.getElementById('b-feedback').textContent='';
+  document.getElementById('b-feedback').className='feedback-box';
+  document.getElementById('b-btn-next').style.display='none';
+  document.getElementById('b-num-display').textContent='Pronti?';
+  document.getElementById('b-num-counter').textContent='';
+  document.getElementById('b-btn-start').style.display='block';
+  // progress dots per i numeri
   const s=bSeries[bIdx];
-  const nr=document.getElementById('b-numbers-row');nr.innerHTML='';
-  s.numbers.forEach(n=>{const c=document.createElement('div');c.className='num-chip';c.textContent=n;nr.appendChild(c);});
+  const wp=document.getElementById('b-num-progress');wp.innerHTML='';
+  s.numbers.forEach((_,i)=>{const d=document.createElement('div');d.className='wp-dot';d.id='bnp-'+i;wp.appendChild(d);});
+}
+
+let bNumTimer=null;
+function bStartSequence(){
+  const s=bSeries[bIdx];
+  document.getElementById('b-btn-start').style.display='none';
+  let ni=0;
+  function showNum(){
+    if(ni>0) document.getElementById('bnp-'+(ni-1)).className='wp-dot done';
+    if(ni<s.numbers.length){
+      document.getElementById('bnp-'+ni).className='wp-dot active';
+      const nd=document.getElementById('b-num-display');
+      nd.style.animation='none'; nd.offsetHeight; nd.style.animation='';
+      nd.textContent=s.numbers[ni];
+      document.getElementById('b-num-counter').textContent=(ni+1)+' di '+s.numbers.length;
+      ni++;
+      bNumTimer=setTimeout(showNum,1800);
+    } else {
+      // numeri finiti — spariscono, appare comando
+      s.numbers.forEach((_,i)=>document.getElementById('bnp-'+i).className='wp-dot done');
+      document.getElementById('b-num-display').textContent='✦';
+      document.getElementById('b-num-counter').textContent='Ora rispondete!';
+      setTimeout(()=>{
+        document.getElementById('b-phase-1').classList.remove('visible');
+        bShowCommand(s);
+      },700);
+    }
+  }
+  showNum();
+}
+
+function bShowCommand(s){
+  document.getElementById('b-phase-2').classList.add('visible');
   document.getElementById('b-command').textContent='❓ '+s.command;
   const ar=document.getElementById('b-answer-row');ar.innerHTML='';
-  document.getElementById('b-feedback').textContent='';document.getElementById('b-feedback').className='feedback-box';
-  document.getElementById('b-btn-next').style.display='none';
   s.options.forEach(o=>{
     const btn=document.createElement('button');btn.className='ans-btn';btn.textContent=o;
     btn.onclick=()=>bAnswer(btn,o===s.answer,s);
     ar.appendChild(btn);
   });
-  // anima numeri uno per uno
-  const chips=nr.querySelectorAll('.num-chip');
-  chips.forEach((c,i)=>{setTimeout(()=>{c.classList.add('active');setTimeout(()=>c.classList.remove('active'),600);},i*500);});
 }
 
 function bAnswer(btn,isCorrect,s){
