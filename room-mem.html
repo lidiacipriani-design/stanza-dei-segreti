@@ -292,34 +292,71 @@ let roomScore=0;
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 // ══ DATI ══
-const gamberoSeries=[
-  {words:['Cane','Sole','Libro'],answer:'Libro · Sole · Cane'},
-  {words:['Casa','Mare','Treno'],answer:'Treno · Mare · Casa'},
-  {words:['Luna','Pane','Fiore','Gatto'],answer:'Gatto · Fiore · Pane · Luna'},
-  {words:['Nuvola','Scarpa','Bosco','Tazza'],answer:'Tazza · Bosco · Scarpa · Nuvola'},
-  {words:['Stella','Ponte','Mela','Sedia','Vento'],answer:'Vento · Sedia · Mela · Ponte · Stella'}
+
+// 30 parole semplici per il gambero
+const parolePool=['Cane','Sole','Mare','Luna','Pane','Casa','Gatto','Treno','Fiore','Mela',
+  'Libro','Nuvola','Scarpa','Bosco','Tazza','Stella','Ponte','Sedia','Vento','Porta',
+  'Luce','Neve','Erba','Barca','Fuoco','Ramo','Lago','Vaso','Dado','Filo'];
+
+function buildGamberoSeries(){
+  const sh=shuffle([...parolePool]);
+  return [
+    {words:sh.slice(0,2)},
+    {words:sh.slice(2,5)},
+    {words:sh.slice(5,8)}
+  ];
+}
+
+// 30 sequenze di 4 numeri per il bersaglio
+const numeriPool=[
+  [3,7,2,9],[5,1,8,4],[6,9,3,7],[2,8,5,1],[4,6,9,3],
+  [7,2,4,8],[1,5,7,3],[9,4,6,2],[3,8,1,6],[5,7,3,9],
+  [8,3,9,5],[2,6,4,7],[6,1,8,3],[4,9,2,6],[7,3,5,8],
+  [1,8,6,4],[9,5,3,7],[3,2,8,6],[6,4,7,1],[8,7,2,5],
+  [2,9,6,3],[5,3,8,7],[7,6,1,9],[4,8,3,5],[9,1,7,4],
+  [6,5,9,2],[1,7,4,8],[8,4,2,6],[3,6,5,1],[5,2,9,4]
 ];
 
-const bersaglioSeries=[
-  {numbers:[5,3,2],command:'Somma i primi due numeri',answer:8,options:[6,7,8,9]},
-  {numbers:[4,6,1],command:'Somma tutti e tre i numeri',answer:11,options:[9,10,11,12]},
-  {numbers:[10,3,4],command:'Primo numero meno l\'ultimo',answer:6,options:[5,6,7,13]},
-  {numbers:[2,5,3,1],command:'Somma il primo e l\'ultimo numero',answer:3,options:[2,3,6,11]},
-  {numbers:[8,2,5,3],command:'Qual è il numero più grande?',answer:8,options:[5,6,7,8]},
-  {numbers:[10,2,1,3],command:'Inizia da 10: +2, -1, +3. Qual è il risultato?',answer:14,options:[12,13,14,16]}
-];
+function genOptions(correct){
+  const opts=new Set([correct]);
+  let attempts=0;
+  while(opts.size<4 && attempts<50){
+    const v=correct+Math.floor(Math.random()*7)-3;
+    if(v>=0) opts.add(v);
+    attempts++;
+  }
+  return shuffle([...opts]);
+}
 
-const grigliePatterns=[
-  {colored:[0,4,8],label:'Livello base — 3 caselle'},
-  {colored:[1,3,7],label:'Livello base — 3 caselle'},
-  {colored:[0,2,5,6],label:'Livello medio — 4 caselle'},
-  {colored:[1,4,6,8],label:'Livello medio — 4 caselle'},
-  {colored:[0,2,4,6,8],label:'Livello difficile — 5 caselle'},
-  {colored:[1,3,5,7,4],label:'Livello difficile — 5 caselle'}
-];
+function buildBersaglioSeries(){
+  const sh=shuffle([...numeriPool]);
+  const s1=sh[0],s2=sh[1],s3=sh[2];
+  const ans2=s2[0]+s2[3];
+  const ans3=Math.abs(s3[0]-s3[3]);
+  return [
+    {numbers:s1, command:'Qual è il numero più grande?',
+     answer:Math.max(...s1), options:genOptions(Math.max(...s1))},
+    {numbers:s2, command:'Somma il primo e l\'ultimo numero',
+     answer:ans2, options:genOptions(ans2)},
+    {numbers:s3, command:'Primo numero meno l\'ultimo (risultato positivo)',
+     answer:ans3, options:genOptions(ans3)}
+  ];
+}
+
+// Griglie a dimensione crescente
+function buildGrigliaPatterns(){
+  function rndCells(total,count){
+    return shuffle([...Array(total).keys()]).slice(0,count);
+  }
+  return [
+    {size:3, colored:rndCells(9,3),  label:'Griglia 3×3'},
+    {size:4, colored:rndCells(16,4), label:'Griglia 4×4'},
+    {size:5, colored:rndCells(25,5), label:'Griglia 5×5'}
+  ];
+}
 
 // ══ SFIDA A: GAMBERO ══
-const aSeries=shuffle(gamberoSeries).slice(0,3);
+const aSeries=buildGamberoSeries();
 let aIdx=0;
 
 function aInitDots(){
@@ -423,7 +460,7 @@ function aCheckAnswers(){
 function aNext(){document.getElementById('a-btn-next').style.display='none';aLoad();}
 
 // ══ SFIDA B: BERSAGLIO ══
-const bSeries=shuffle(bersaglioSeries).slice(0,3);
+const bSeries=buildBersaglioSeries();
 let bIdx=0;
 
 function bInitDots(){
@@ -512,7 +549,7 @@ function bAnswer(btn,isCorrect,s){
 function bNext(){document.getElementById('b-btn-next').style.display='none';bLoad();}
 
 // ══ SFIDA C: GRIGLIA ══
-const cPatterns=shuffle(grigliePatterns).slice(0,3);
+const cPatterns=buildGrigliaPatterns();
 let cIdx=0;
 let cCurrentPattern=null;
 let cTimer=null;
@@ -524,16 +561,24 @@ function cInitDots(){
 
 function cBuildShowGrid(pattern){
   const g=document.getElementById('c-show-grid');g.innerHTML='';
-  for(let i=0;i<9;i++){
+  const size=pattern.size;
+  const total=size*size;
+  g.style.gridTemplateColumns=`repeat(${size},1fr)`;
+  g.style.width=`min(${size*56}px,90vw)`;
+  for(let i=0;i<total;i++){
     const cell=document.createElement('div');cell.className='grid-cell';
     if(pattern.colored.includes(i))cell.classList.add('colored');
     g.appendChild(cell);
   }
 }
 
-function cBuildAnswerGrid(){
+function cBuildAnswerGrid(pattern){
   const g=document.getElementById('c-answer-grid');g.innerHTML='';
-  for(let i=0;i<9;i++){
+  const size=pattern.size;
+  const total=size*size;
+  g.style.gridTemplateColumns=`repeat(${size},1fr)`;
+  g.style.width=`min(${size*56}px,90vw)`;
+  for(let i=0;i<total;i++){
     const cell=document.createElement('div');cell.className='grid-cell';
     cell.dataset.idx=i;
     cell.onclick=()=>{cell.classList.toggle('selected');};
@@ -549,8 +594,11 @@ function cLoadPattern(){
   document.getElementById('c-timer-wrap').style.display='none';
   document.getElementById('c-show-phase').style.display='flex';
   document.getElementById('c-answer-phase').style.display='none';
-  document.getElementById('c-feedback').textContent='';document.getElementById('c-feedback').className='feedback-box';
+  document.getElementById('c-feedback').textContent='';
+  document.getElementById('c-feedback').className='feedback-box';
   document.getElementById('c-btn-next').style.display='none';
+  document.getElementById('c-btn-finish').style.display='none';
+  document.getElementById('c-btn-check').style.display='block';
   cBuildShowGrid(cCurrentPattern);
 }
 
@@ -562,16 +610,16 @@ function cShowGrid(){
   const circle=document.getElementById('c-tcircle');
   document.getElementById('c-tnum').textContent=t;
   circle.style.strokeDashoffset=0;
+  clearInterval(cTimer);
   cTimer=setInterval(()=>{
     t--;
     document.getElementById('c-tnum').textContent=t;
     circle.style.strokeDashoffset=283*(1-t/5);
     if(t<=0){
       clearInterval(cTimer);
-      // nascondi griglia e mostra fase risposta
       document.getElementById('c-show-phase').style.display='none';
       document.getElementById('c-answer-phase').style.display='flex';
-      cBuildAnswerGrid();
+      cBuildAnswerGrid(cCurrentPattern);
     }
   },1000);
 }
@@ -599,7 +647,7 @@ function cCheckAnswer(){
   cIdx++;
   if(cIdx<cPatterns.length){
     document.getElementById('c-btn-next').style.display='block';
-    document.getElementById('cpdot-'+cIdx).className='pdot active';
+    if(cIdx<cPatterns.length) document.getElementById('cpdot-'+cIdx).className='pdot active';
   } else {
     document.getElementById('c-btn-finish').style.display='block';
   }
